@@ -83,7 +83,7 @@ class SaiPresentation():
         MAX_ROW_COUNT = 11
         def bhajan_slide_template():
             slide = self.prs.slides.add_slide(self.prs.slide_layouts[5])
-            bhajan_rn = self.add_run_to_slide_with_font(slide,Inches(0.5), Inches(1), Inches(9), Inches(5.5), Pt(28))
+            bhajan_rn = self.add_run_to_slide_with_font(slide,Inches(0.5), Inches(1.5), Inches(9), Inches(5.5), Pt(26))
             key_rn = self.add_run_to_slide_with_font(slide,Inches(0.5), Inches(6.5), Inches(1), Inches(0.75), Pt(16), PP_ALIGN.LEFT)
             next_bhajan_name_rn = self.add_run_to_slide_with_font(slide, Inches(2.5), Inches(6.5), Inches(4), Inches(0.75), Pt(16))
             next_key_rn = self.add_run_to_slide_with_font(slide, Inches(8), Inches(6.5), Inches(1), Inches(0.75), Pt(16), PP_ALIGN.RIGHT)
@@ -137,7 +137,10 @@ class SaiPresentation():
                 final = True
             else:
                 final = False
-            add_a_bhajan_slide(bhajan_name, text, final, key, next_bhajan_name, next_key)
+            if len(bhajan_txt) == 0: # Empty Bhajan
+                self.add_full_image_slide(os.path.join(app.config['DATA_DIRECTORY'], 'filler.jpg'))
+            else:
+                add_a_bhajan_slide(bhajan_name, text, final, key, next_bhajan_name, next_key)
 
     def save_presentation(self, filename):
         self.prs.save(filename)

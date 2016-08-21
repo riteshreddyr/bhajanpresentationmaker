@@ -5,7 +5,7 @@ from flaskappbase import app
 class BhajanModel():
     FILLER_SLIDE = {
         "id" : -1,
-        "name" : "Sai Center",
+        "name" : "",
         "bhajan" : "",
         "meaning" : ""
     }
