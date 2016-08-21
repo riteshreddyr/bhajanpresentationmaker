@@ -14,14 +14,14 @@ def list_all_bhajans():
 @app.route("/bhajanmanager/add", methods=["GET", "POST"])
 def add_bhajan():
     if request.method == "POST":
-        name, bhajan = _get_bhajan_from_request(request)
+        name, bhajan, meaning = _get_bhajan_from_request(request)
         if name is None or bhajan is None:
             return render_template("generic_error.html")
         if not name is None and (bhajan is None or len(bhajan) == 0):
             return render_template("bhajanmanager_add.html", error="Please fill in the bhajan text")
         if not bhajan is None and (name is None or len(name) == 0):
             return render_template("bhajanmanager_add.html", error="Please fill in the bhajan name")
-        id = BhajanModel.add_bhajan(name, bhajan)
+        id = BhajanModel.add_bhajan(name, bhajan, meaning)
         return redirect('/bhajanmanager/edit/'+str(id)+"?just_added=true")
     else:
         return render_template('bhajanmanager_add.html')
@@ -33,16 +33,16 @@ def edit_bhajan(bhajan_id):
     else:
         just_added = False
     if request.method == "POST":
-        name, bhajan = _get_bhajan_from_request(request)
+        name, bhajan, meaning = _get_bhajan_from_request(request)
         if name is None or bhajan is None:
             return render_template("generic_error.html")
         if not name is None and (bhajan is None or len(bhajan) == 0):
-            return render_template("bhajanmanager_edit.html", id=bhajan_id, name=name, bhajan=bhajan, error="Please fill in the bhajan text")
+            return render_template("bhajanmanager_edit.html", id=bhajan_id, name=name, bhajan=bhajan, meaning=meaning, error="Please fill in the bhajan text")
         if not bhajan is None and (name is None or len(name) == 0):
-            return render_template("bhajanmanager_edit.html", id=bhajan_id, name=name, bhajan=bhajan, error="Please fill in the bhajan name")
-        BhajanModel.edit_bhajan(bhajan_id, name, bhajan)
+            return render_template("bhajanmanager_edit.html", id=bhajan_id, name=name, bhajan=bhajan, meaning=meaning, error="Please fill in the bhajan name")
+        BhajanModel.edit_bhajan(bhajan_id, name, bhajan, meaning)
     bhajan = BhajanModel.get_bhajan(bhajan_id)
-    return render_template('bhajanmanager_edit.html', id=bhajan_id, name=bhajan['name'], bhajan=bhajan['bhajan'], just_added=just_added)
+    return render_template('bhajanmanager_edit.html', id=bhajan_id, name=bhajan['name'], bhajan=bhajan['bhajan'], meaning=bhajan['meaning'], just_added=just_added)
 
 @app.route("/bhajanmanager/delete/<bhajan_id>", methods=["GET"])
 def delete_bhajan(bhajan_id):
@@ -80,14 +80,15 @@ def import_bhajans():
 
 def _get_bhajan_from_request(request):
     if not request.form is None:
-        return request.form['name'], request.form['bhajan']
+        return request.form['name'], request.form['bhajan'], request.form['meaning']
     stream = request.stream.read()
     if not stream is None or len(stream) != 0:
         # sometimes we get it as a parameter string here.
         split = stream.split('&')
         name = split[0].split('=')[1]
-        bhajan = split[1].split('=')[2]
-        return name, bhajan
-    return None, None
+        bhajan = split[1].split('=')[1]
+        meaning = split[2].split('=')[1]
+        return name, bhajan, meaning
+    return None, None, None
 
 

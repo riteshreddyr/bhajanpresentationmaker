@@ -91,13 +91,14 @@ class BhajanModel():
 
 
     @staticmethod
-    def edit_bhajan(bhajan_id, name, bhajan_text):
+    def edit_bhajan(bhajan_id, name, bhajan_text, meaning):
         next_id, bhajans = BhajanModel.__read_bhajans_file()
         bhajan_id = int(bhajan_id)
         for bhajan in bhajans:
             if bhajan['id'] == bhajan_id:
                 bhajan['name'] = name
                 bhajan['bhajan'] = bhajan_text
+                bhajan['meaning'] = meaning
                 break
         BhajanModel.__write_bhajans_file(next_id, bhajans)
 

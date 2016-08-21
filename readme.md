@@ -17,3 +17,7 @@
 * run ``` pip install -r requirements.txt ```
 * run ``` python main.py ```
 * Open a browser and navigate to http://localhost:5000
+
+#### TODO
+* More robust validation and error handling.
+* Meaning on slides - now only stored but not displayed.
