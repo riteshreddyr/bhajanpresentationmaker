@@ -1,0 +1,31 @@
+{% extends 'parent.html' %}
+
+{% block body %}
+
+<div class="row">
+    <div class="col-md-12">
+        <h3>Add a new Bhajan</h3>
+    </div>
+</div>
+
+
+<form enctype="application/x-www-form-urlencoded" method="post" action="/bhajanmanager/add">
+    <div class="form-group">
+        <label for="name">Bhajan Name *</label>
+        <input type="text" class="form-control" name="name" id="name" placeholder="Bhajan Name" required="true">
+    </div>
+    <div class="form-group">
+        <label for="bhajan">Bhajan Text *</label>
+        <textarea class="form-control required" name="bhajan" id="bhajan" rows=30 placeholder="Bhajan"></textarea>
+    </div>
+    {% if error %}
+    <div class="row">
+        <div class="col-md-12">
+            <h4 class="text-danger">{{ error }}</h4>
+        </div>
+    </div>
+    {% endif %}
+    <button type="submit" class="btn btn-default">Add</button>
+</form>
+
+{% endblock %}

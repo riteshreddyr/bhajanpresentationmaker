@@ -1,0 +1,51 @@
+{% extends 'parent.html' %}
+
+{% block body %}
+<div class="row">
+    <div class="col-md-12">
+        <h3>Order your Bhajans</h3>
+    </div>
+</div>
+<form enctype="application/x-www-form-urlencoded" method="post" action="/presentationmanager/generate">
+    <div class="row">
+        <div class="col-md-12">
+            <table id="index" class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Bhajan Name</th>
+                    <th>Position</th>
+                    <th>Key</th>
+                </tr>
+                </thead>
+                <tbody>
+                {%- for bhajan in bhajans_chosen %}
+                <tr>
+                    <td>{{ bhajan.id }}</td>
+                    <td>{{ bhajan.name }}</td>
+                    <input type="hidden" value="{{bhajan.id}}" name="bhajan_id"/>
+                    <td><input type="number" name="position" /> </td>
+                    <td><input type="text" name="key"/> </td>
+                </tr>
+                {%- endfor %}
+                {%- for n in range(filler_slides) %}
+                <tr>
+                    <td></td>
+                    <td>Filler Slide</td>
+                    <input type="hidden" value="-1" name="bhajan_id"/>
+                    <td><input type="number" name="position" /> </td>
+                    <td><input type="hidden" name="key" value=""/></td>
+                </tr>
+                {%- endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+     <div class="row">
+        <div class="col-md-4 col-md-offset-8">
+            <input type="submit" class="btn btn-primary" value="Generate Presentation"/>
+        </div>
+    </div>
+</form>
+
+{% endblock %}

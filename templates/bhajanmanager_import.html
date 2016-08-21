@@ -1,0 +1,87 @@
+{% extends 'parent.html' %}
+
+{% block body %}
+<div class="row">
+    <div class="col-md-12">
+        <h3>Import Bhajans</h3>
+    </div>
+</div>
+
+{% if error %}
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="text-danger">Invalid file</h2>
+    </div>
+</div>
+{% endif %}
+
+<form enctype="multipart/form-data" method="post" action="/bhajanmanager/import">
+    <div class="form-group">
+        <label for="file">Bhajan file</label>
+        <input type="file" class="form-control" name="file" id="file" placeholder="Bhajan File" required="true">
+    </div>
+    <button type="submit" class="btn btn-default">Import</button>
+</form>
+
+<div class="row">
+    <div class="col-md-12">
+        <pre>
+            Structure of file:
+            Json Dictionary {
+                next_id : integer,
+                bhajans : list of Json Dictionaries [
+                        Json Dict { id: int
+                                    name: string
+                                    bhajan: string
+                                    meaning: string (optional)
+                                }
+                        ]
+                      }
+        </pre>
+
+        <pre>
+            Json Schema
+            {
+              "$schema": "http://json-schema.org/draft-04/schema#",
+              "type": "object",
+              "properties": {
+                "next_id": {
+                  "type": "integer"
+                },
+                "bhajans": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "bhajan": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "meaning": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "bhajan",
+                      "name",
+                      "meaning"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "next_id",
+                "bhajans"
+              ]
+            }
+        </pre>
+    </div>
+</div>
+
+{% endblock %}

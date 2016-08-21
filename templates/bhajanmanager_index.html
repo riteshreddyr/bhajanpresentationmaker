@@ -1,0 +1,55 @@
+{% extends 'parent.html' %}
+
+{% block body %}
+<div class="row">
+    <div class="col-md-4">
+        <a href="/bhajanmanager/add" class="btn btn-primary">Add a new Bhajan</a>
+    </div>
+     <div class="col-md-4">
+        <a href="/bhajanmanager/import" class="btn btn-primary">Import Bhajans</a>
+    </div>
+    <div class="col-md-4">
+        <a href="/bhajanmanager/export" class="btn btn-primary">Export Bhajans</a>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <h3>List of Bhajans</h3>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <table id="index" class="table table-hover">
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Bhajan Name</th>
+                <th>Controls</th>
+            </tr>
+            </thead>
+            <tbody>
+            {%- for bhajan in bhajans %}
+            <tr>
+                <td>{{ bhajan.id }}</td>
+                <td>{{ bhajan.name }}</td>
+                <td><a href="/bhajanmanager/edit/{{ bhajan.id }}"><span class="glyphicon glyphicon-edit"
+                                                                        aria-hidden="true"></span></a>
+                    <a href="/bhajanmanager/delete/{{ bhajan.id }}"
+                       onclick="return confirm('Are you sure you want to delete this bhajan (id: {{ bhajan.id }})?');"><span
+                            class="glyphicon glyphicon-remove"
+                            aria-hidden="true"></span></a></td>
+            </tr>
+            {%- endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready( function () {
+    $('#index').DataTable();
+} );
+
+</script>
+
+{% endblock %}
