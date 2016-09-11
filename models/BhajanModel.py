@@ -1,13 +1,15 @@
 __author__ = 'RiteshReddy'
 import json
+
 from flaskappbase import app
+
 
 class BhajanModel():
     FILLER_SLIDE = {
-        "id" : -1,
-        "name" : "",
-        "bhajan" : "",
-        "meaning" : ""
+        "id": -1,
+        "name": "",
+        "bhajan": "",
+        "meaning": ""
     }
 
     @staticmethod
@@ -33,10 +35,10 @@ class BhajanModel():
                 next_id = json_data['next_id']
                 bhajans = json_data['bhajans']
                 return next_id, bhajans
-        except IOError,e:
+        except IOError, e:
             print e
             return 1, list()
-        except ValueError,e:
+        except ValueError, e:
             print e
             return 1, list()
 
@@ -60,7 +62,7 @@ class BhajanModel():
         :param filename: - name of file defaults to bhajans.json
         """
         with open(filename, 'w') as bhajans_json:
-            json_data = {"next_id" : next_id, "bhajans" : bhajans}
+            json_data = {"next_id": next_id, "bhajans": bhajans}
             json.dump(json_data, bhajans_json)
 
 
@@ -103,9 +105,9 @@ class BhajanModel():
         BhajanModel.__write_bhajans_file(next_id, bhajans)
 
     @staticmethod
-    def add_bhajan(name, bhajan, meaning = ""):
+    def add_bhajan(name, bhajan, meaning=""):
         next_id, bhajans = BhajanModel.__read_bhajans_file()
-        bhajan_dict = {"id":next_id, "name":name, "bhajan":bhajan, "meaning":meaning}
+        bhajan_dict = {"id": next_id, "name": name, "bhajan": bhajan, "meaning": meaning}
         next_id += 1
         bhajans.append(bhajan_dict)
         BhajanModel.__write_bhajans_file(next_id, bhajans)
@@ -119,7 +121,7 @@ class BhajanModel():
         """
         bhajans = list()
         for id in bhajan_list:
-            if int(id) == -1: # filler slide id
+            if int(id) == -1:  # filler slide id
                 bhajans.append(BhajanModel.FILLER_SLIDE)
                 continue
             bhajan = BhajanModel.get_bhajan(id)
@@ -136,14 +138,14 @@ class BhajanModel():
             next_id, current_bhajans = BhajanModel.__read_bhajans_file()
             for bhajan in new_bhajans:
                 bhajan_dict = {
-                    "id" : next_id,
-                    "name" : bhajan['name'],
-                    "bhajan" : bhajan['bhajan'],
-                    "meaning" : bhajan['meaning']
+                    "id": next_id,
+                    "name": bhajan['name'],
+                    "bhajan": bhajan['bhajan'],
+                    "meaning": bhajan['meaning']
                 }
                 current_bhajans.append(bhajan_dict)
                 next_id += 1
             BhajanModel.__write_bhajans_file(next_id, current_bhajans)
-        except Exception,e:
+        except Exception, e:
             return False
         return True

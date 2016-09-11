@@ -1,15 +1,19 @@
 __author__ = 'RiteshReddy'
 
+import os
+
 from flask import render_template, request, redirect, send_from_directory, flash
+
 from flaskappbase import app
 from models.BhajanModel import BhajanModel
-import os
+
 
 @app.route("/bhajanmanager", methods=["GET"])
 def list_all_bhajans():
     bhajans = BhajanModel.get_all_bhajans()
-    bhajans = sorted(bhajans, key = lambda x : x['name'])
+    bhajans = sorted(bhajans, key=lambda x: x['name'])
     return render_template('bhajanmanager_index.html', bhajans=bhajans)
+
 
 @app.route("/bhajanmanager/add", methods=["GET", "POST"])
 def add_bhajan():
@@ -22,9 +26,10 @@ def add_bhajan():
         if not bhajan is None and (name is None or len(name) == 0):
             return render_template("bhajanmanager_add.html", error="Please fill in the bhajan name")
         id = BhajanModel.add_bhajan(name, bhajan, meaning)
-        return redirect('/bhajanmanager/edit/'+str(id)+"?just_added=true")
+        return redirect('/bhajanmanager/edit/' + str(id) + "?just_added=true")
     else:
         return render_template('bhajanmanager_add.html')
+
 
 @app.route("/bhajanmanager/edit/<bhajan_id>", methods=["GET", "POST"])
 def edit_bhajan(bhajan_id):
@@ -37,21 +42,27 @@ def edit_bhajan(bhajan_id):
         if name is None or bhajan is None:
             return render_template("generic_error.html")
         if not name is None and (bhajan is None or len(bhajan) == 0):
-            return render_template("bhajanmanager_edit.html", id=bhajan_id, name=name, bhajan=bhajan, meaning=meaning, error="Please fill in the bhajan text")
+            return render_template("bhajanmanager_edit.html", id=bhajan_id, name=name, bhajan=bhajan, meaning=meaning,
+                                   error="Please fill in the bhajan text")
         if not bhajan is None and (name is None or len(name) == 0):
-            return render_template("bhajanmanager_edit.html", id=bhajan_id, name=name, bhajan=bhajan, meaning=meaning, error="Please fill in the bhajan name")
+            return render_template("bhajanmanager_edit.html", id=bhajan_id, name=name, bhajan=bhajan, meaning=meaning,
+                                   error="Please fill in the bhajan name")
         BhajanModel.edit_bhajan(bhajan_id, name, bhajan, meaning)
     bhajan = BhajanModel.get_bhajan(bhajan_id)
-    return render_template('bhajanmanager_edit.html', id=bhajan_id, name=bhajan['name'], bhajan=bhajan['bhajan'], meaning=bhajan['meaning'], just_added=just_added)
+    return render_template('bhajanmanager_edit.html', id=bhajan_id, name=bhajan['name'], bhajan=bhajan['bhajan'],
+                           meaning=bhajan['meaning'], just_added=just_added)
+
 
 @app.route("/bhajanmanager/delete/<bhajan_id>", methods=["GET"])
 def delete_bhajan(bhajan_id):
     BhajanModel.delete_bhajan(bhajan_id)
     return redirect("/bhajanmanager")
 
+
 @app.route("/bhajanmanager/export", methods=["GET"])
 def export_bhajans():
-    return send_from_directory(app.root_path, "bhajans.json", as_attachment = True, attachment_filename = "bhajans.json")
+    return send_from_directory(app.root_path, "bhajans.json", as_attachment=True, attachment_filename="bhajans.json")
+
 
 @app.route("/bhajanmanager/import", methods=["GET", "POST"])
 def import_bhajans():
@@ -76,7 +87,8 @@ def import_bhajans():
         flash("Successfully Imported")
         return redirect(request.url)
     else:
-        return render_template('bhajanmanager_import.html', error = False)
+        return render_template('bhajanmanager_import.html', error=False)
+
 
 def _get_bhajan_from_request(request):
     if not request.form is None:

@@ -1,22 +1,25 @@
 __author__ = 'RiteshReddy'
+from datetime import date
+import os
+import random
+
 from pptx import Presentation
 from pptx.util import Inches
 from pptx.enum.text import PP_PARAGRAPH_ALIGNMENT as PP_ALIGN
 from pptx.dml.color import RGBColor
 from pptx.util import Pt
-from pptx.enum.text import MSO_ANCHOR, MSO_AUTO_SIZE
-from datetime import date
-import os
+from pptx.enum.text import MSO_AUTO_SIZE
+
 from flaskappbase import app
-import random
+
 
 class SaiPresentation():
-    def __init__(self, title_silde_image = os.path.join(app.config['DATA_DIRECTORY'], "title_slide.jpg")):
+    def __init__(self, title_silde_image=os.path.join(app.config['DATA_DIRECTORY'], "title_slide.jpg")):
         self.prs = Presentation()
         self.add_title_slide(title_silde_image)
 
     @staticmethod
-    def set_run_font(run, size, color = RGBColor(0x00, 0x00, 0x00), bold = False, italic = None):
+    def set_run_font(run, size, color=RGBColor(0x00, 0x00, 0x00), bold=False, italic=None):
         font = run.font
         font.size = size
         font.color.rgb = color
@@ -24,13 +27,13 @@ class SaiPresentation():
         font.italic = italic
 
     @staticmethod
-    def add_new_run_with_text(para, text = ""):
+    def add_new_run_with_text(para, text=""):
         run = para.add_run()
         run.text = text
         return run
 
     @staticmethod
-    def add_paragraph_with_alignment(textBox, alignment = PP_ALIGN.CENTER):
+    def add_paragraph_with_alignment(textBox, alignment=PP_ALIGN.CENTER):
         para = textBox.text_frame.add_paragraph()
         para.alignment = alignment
         return para
@@ -42,7 +45,8 @@ class SaiPresentation():
         return text_box
 
     @staticmethod
-    def add_run_to_slide_with_font(slide, left, top, width, height, text_size, alignment = PP_ALIGN.CENTER, color = RGBColor(0xff, 0xff, 0xff), bold = False, italic = None):
+    def add_run_to_slide_with_font(slide, left, top, width, height, text_size, alignment=PP_ALIGN.CENTER,
+                                   color=RGBColor(0xff, 0xff, 0xff), bold=False, italic=None):
         text_box = SaiPresentation.add_textBox(slide, left, top, width, height)
         para = SaiPresentation.add_paragraph_with_alignment(text_box, alignment)
         run = SaiPresentation.add_new_run_with_text(para, "")
@@ -56,7 +60,7 @@ class SaiPresentation():
         width = Inches(10)
         pic = slide.shapes.add_picture(img_path, left, top, height=height, width=width)
 
-    def add_title_slide(self, image_path = "title_slide.jpg"):
+    def add_title_slide(self, image_path="title_slide.jpg"):
         slide = self.prs.slides.add_slide(self.prs.slide_layouts[6])
         left = top = Inches(0)
         height = Inches(7.5)
@@ -64,14 +68,16 @@ class SaiPresentation():
         pic = slide.shapes.add_picture(image_path, left, top, height=height, width=width)
         text_box = SaiPresentation.add_textBox(slide, Inches(2.5), Inches(3.2), Inches(5), Inches(1))
         para = SaiPresentation.add_paragraph_with_alignment(text_box)
-        run = SaiPresentation.add_new_run_with_text(para, "Central London \n Sai Center\n" )
+        run = SaiPresentation.add_new_run_with_text(para, "Central London \n Sai Center\n")
         SaiPresentation.set_run_font(run, Pt(44), RGBColor(0xFF, 0xFF, 0xFF), True)
         run = SaiPresentation.add_new_run_with_text(para, date.today().strftime("%B %d, %Y"))
         SaiPresentation.set_run_font(run, Pt(32), RGBColor(0xFF, 0xFF, 0x0F), True)
 
 
-    def add_bhajan_slide(self, bhajan_name, bhajan_txt, key="", next_bhajan_name="", next_key="" ):
+    def add_bhajan_slide(self, bhajan_name, bhajan_txt, key="", next_bhajan_name="", next_key=""):
         """
+        Adds a bhajan to the powerpoint - a bhajan can take multiple slides depending on user
+        handled pagebreaks and natural overflows.
         One slide can hold 9 rows and 49 characters per row.
         :param bhajan_name:
         :param bhajan_txt:
@@ -93,14 +99,16 @@ class SaiPresentation():
             if not background_path is None:
                 slide.shapes.add_picture(background_path, Inches(0), Inches(0), height=Inches(7.5), width=Inches(10))
             title_rn = self.add_run_to_slide_with_font(slide, Inches(0.5), Inches(0.25), Inches(9), Inches(1), Pt(36))
-            bhajan_rn = self.add_run_to_slide_with_font(slide,Inches(0.5), Inches(1.25), Inches(9), Inches(5.5), Pt(32))
-            key_rn = self.add_run_to_slide_with_font(slide,Inches(0.5), Inches(6.5), Inches(1), Inches(0.75), Pt(16), PP_ALIGN.LEFT)
-            next_bhajan_name_rn = self.add_run_to_slide_with_font(slide, Inches(2.5), Inches(6.5), Inches(4), Inches(0.75), Pt(16))
-            next_key_rn = self.add_run_to_slide_with_font(slide, Inches(8), Inches(6.5), Inches(1), Inches(0.75), Pt(16), PP_ALIGN.RIGHT)
+            bhajan_rn = self.add_run_to_slide_with_font(slide, Inches(0.5), Inches(1.25), Inches(9), Inches(5.5),
+                                                        Pt(32))
+            key_rn = self.add_run_to_slide_with_font(slide, Inches(0.5), Inches(6.5), Inches(1), Inches(0.75), Pt(16),
+                                                     PP_ALIGN.LEFT)
+            next_bhajan_name_rn = self.add_run_to_slide_with_font(slide, Inches(2.5), Inches(6.5), Inches(4),
+                                                                  Inches(0.75), Pt(16))
+            next_key_rn = self.add_run_to_slide_with_font(slide, Inches(8), Inches(6.5), Inches(1), Inches(0.75),
+                                                          Pt(16), PP_ALIGN.RIGHT)
 
             return slide, title_rn, bhajan_rn, key_rn, next_bhajan_name_rn, next_key_rn
-
-
 
 
         def handle_user_defined_page_breaks(text):
@@ -115,13 +123,13 @@ class SaiPresentation():
                     if len(line) > MAX_ROW_LENGTH:
                         """ Break into spaces and reconstruct at 49 intervals : handles multiple lines in one go """
                         space_break = line.split(" ")
-                        new_line = "" #string concat...so bad :(
+                        new_line = ""  # string concat...so bad :(
                         cur_line_length = 0
                         for broken in space_break:
-                            if cur_line_length + len(broken) > MAX_ROW_LENGTH :
+                            if cur_line_length + len(broken) > MAX_ROW_LENGTH:
                                 new_line += "\n" + broken
                                 cur_line_length = len(broken)
-                            else :
+                            else:
                                 new_line += " " + broken
                                 cur_line_length += len(broken) + 1
                         line_list[ind] = new_line
@@ -137,7 +145,7 @@ class SaiPresentation():
                 lines = text.split("\r\n")
                 this_set = []
                 for i in range(0, len(lines), MAX_ROW_COUNT):
-                    for j in range(i, min(len(lines), i+MAX_ROW_COUNT)):
+                    for j in range(i, min(len(lines), i + MAX_ROW_COUNT)):
                         this_set.append(lines[j])
                     slide_text.append('\n'.join(this_set))
                     this_set = []
@@ -145,7 +153,7 @@ class SaiPresentation():
 
             column_adjusted_text = break_lines_if_longer_than_max_row_length(text)
 
-            #A user can define manual page breaks with the following marker.
+            # A user can define manual page breaks with the following marker.
             #Split the text by the marker and ensure each split is in a different slide.
             PAGE_BREAK_MARKER = '\r\n[pagebreak]\r\n'
             slide_text = []
@@ -154,7 +162,18 @@ class SaiPresentation():
             return slide_text
 
 
-        def add_a_bhajan_slide(bhajan_name, text, final = True, key="", next_bhajan_name="", next_key="", background_path=None):
+        def add_a_bhajan_slide(bhajan_name, text, final=True, key="", next_bhajan_name="", next_key="",
+                               background_path=None):
+            """
+            Adds a single bhajan slide - this is one in a series that a single bhajan can take up
+            :param bhajan_name:
+            :param text:
+            :param final: - whether this is the final slide for this bhajan or not.
+            :param key:
+            :param next_bhajan_name:
+            :param next_key:
+            :param background_path: - image path for the background picture
+            """
             slide, title_rn, bhajan_rn, key_rn, nxt_bhajan_rn, nxt_key_rn = bhajan_slide_template(background_path)
             title_rn.text = bhajan_name
             bhajan_rn.text = text.strip()
@@ -172,14 +191,13 @@ class SaiPresentation():
             index = random.randint(0, len(files) - 1)
             background_path = os.path.join(os.path.join(app.config['DATA_DIRECTORY'], 'backgrounds'), files[index])
 
-
         text_split_per_slide = handle_user_defined_page_breaks(bhajan_txt)
-        for pos, text in enumerate(text_split_per_slide, start = 1):
+        for pos, text in enumerate(text_split_per_slide, start=1):
             if pos == len(text_split_per_slide):
                 final = True
             else:
                 final = False
-            if len(bhajan_txt) == 0: # Empty Bhajan
+            if len(bhajan_txt) == 0:  # Empty Bhajan
                 self.add_full_image_slide(os.path.join(app.config['DATA_DIRECTORY'], 'filler.jpg'))
             else:
                 add_a_bhajan_slide(bhajan_name, text, final, key, next_bhajan_name, next_key, background_path)
@@ -188,7 +206,9 @@ class SaiPresentation():
         self.prs.save(filename)
 
     def create_test_presentation(self):
-        self.add_bhajan_slide("Ganesha Sharanam Ganesha Sharanam Ganesha Sharanam Ganesha Sharanam", "Ganesha Ganesha Ganesha Ganesha Ganesha Ganesha GaneshaGanesha Ganesha Ganesha Ganesha GaneshaGanesha Ganesha Ganesha Ganesha Ganesha\nGanesha Ganesha Ganesha Ganesha Ganesha Ganesha GaneshaGanesha Ganesha Ganesha Ganesha GaneshaGanesha Ganesha Ganesha Ganesha Ganesha\nGanesha Ganesha Ganesha Ganesha Ganesha Ganesha GaneshaGanesha Ganesha Ganesha Ganesha GaneshaGanesha Ganesha Ganesha Ganesha Ganesha\nGanesha Ganesha Ganesha Ganesha Ganesha Ganesha GaneshaGanesha Ganesha Ganesha Ganesha GaneshaGanesha Ganesha Ganesha Ganesha Ganesha\nGanesha Ganesha Ganesha Ganesha Ganesha Ganesha GaneshaGanesha Ganesha Ganesha Ganesha GaneshaGanesha Ganesha Ganesha Ganesha Ganesha\nGanesha Ganesha Ganesha Ganesha Ganesha Ganesha GaneshaGanesha Ganesha Ganesha Ganesha GaneshaGanesha Ganesha Ganesha Ganesha Ganesha\n", "Am", "Guru Baba", "B#")
+        self.add_bhajan_slide("Ganesha Sharanam Ganesha Sharanam Ganesha Sharanam Ganesha Sharanam",
+                              "Ganesha Ganesha Ganesha Ganesha Ganesha Ganesha GaneshaGanesha Ganesha Ganesha Ganesha GaneshaGanesha Ganesha Ganesha Ganesha Ganesha\nGanesha Ganesha Ganesha Ganesha Ganesha Ganesha GaneshaGanesha Ganesha Ganesha Ganesha GaneshaGanesha Ganesha Ganesha Ganesha Ganesha\nGanesha Ganesha Ganesha Ganesha Ganesha Ganesha GaneshaGanesha Ganesha Ganesha Ganesha GaneshaGanesha Ganesha Ganesha Ganesha Ganesha\nGanesha Ganesha Ganesha Ganesha Ganesha Ganesha GaneshaGanesha Ganesha Ganesha Ganesha GaneshaGanesha Ganesha Ganesha Ganesha Ganesha\nGanesha Ganesha Ganesha Ganesha Ganesha Ganesha GaneshaGanesha Ganesha Ganesha Ganesha GaneshaGanesha Ganesha Ganesha Ganesha Ganesha\nGanesha Ganesha Ganesha Ganesha Ganesha Ganesha GaneshaGanesha Ganesha Ganesha Ganesha GaneshaGanesha Ganesha Ganesha Ganesha Ganesha\n",
+                              "Am", "Guru Baba", "B#")
         self.prs.save("test.pptx")
 
 
