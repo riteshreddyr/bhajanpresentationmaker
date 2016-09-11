@@ -72,7 +72,7 @@ class SaiPresentation():
 
     def add_bhajan_slide(self, bhajan_name, bhajan_txt, key="", next_bhajan_name="", next_key="" ):
         """
-        One slide can hold 10 rows and 49 characters per row.
+        One slide can hold 9 rows and 49 characters per row.
         :param bhajan_name:
         :param bhajan_txt:
         :param key:
@@ -82,7 +82,13 @@ class SaiPresentation():
         """
         MAX_ROW_LENGTH = 49
         MAX_ROW_COUNT = 9
+
         def bhajan_slide_template(background_path=None):
+            """
+            Adds a slide to the powerpoint and returns a handle to all the various text boxes
+            :param background_path: If not None, include this image as the background image.
+            :return: slide, title_box, bhajan_box, key_box, next_bhajan_name_box, next_key_box
+            """
             slide = self.prs.slides.add_slide(self.prs.slide_layouts[6])
             if not background_path is None:
                 slide.shapes.add_picture(background_path, Inches(0), Inches(0), height=Inches(7.5), width=Inches(10))
@@ -94,28 +100,40 @@ class SaiPresentation():
 
             return slide, title_rn, bhajan_rn, key_rn, next_bhajan_name_rn, next_key_rn
 
-        def get_true_lines(text):
-            line_list = text.split("\n")
-            for ind, line in enumerate(line_list):
-                if len(line) > MAX_ROW_LENGTH:
-                    """ Break into spaces and reconstruct at 49 intervals : handles multiple lines in one go """
-                    space_break = line.split(" ")
-                    new_line = "" #string concat...so bad :(
-                    cur_line_length = 0
-                    for broken in space_break:
-                        if cur_line_length + len(broken) > MAX_ROW_LENGTH :
-                            new_line += "\n" + broken
-                            cur_line_length = len(broken)
-                        else :
-                            new_line += " " + broken
-                            cur_line_length += len(broken) + 1
-                    line_list[ind] = new_line
-            return '\n'.join(line_list)
 
 
 
-        def handle_user_defined_pagebreaks(text):
-            def get_text_per_slide(text):
+        def handle_user_defined_page_breaks(text):
+            def break_lines_if_longer_than_max_row_length(text):
+                """
+                If a line is longer than the max row length, then break that line into multiple lines.
+                :param text: Bhajan text
+                :return: str - Bhajan text with no line longer than max row length
+                """
+                line_list = text.split("\n")
+                for ind, line in enumerate(line_list):
+                    if len(line) > MAX_ROW_LENGTH:
+                        """ Break into spaces and reconstruct at 49 intervals : handles multiple lines in one go """
+                        space_break = line.split(" ")
+                        new_line = "" #string concat...so bad :(
+                        cur_line_length = 0
+                        for broken in space_break:
+                            if cur_line_length + len(broken) > MAX_ROW_LENGTH :
+                                new_line += "\n" + broken
+                                cur_line_length = len(broken)
+                            else :
+                                new_line += " " + broken
+                                cur_line_length += len(broken) + 1
+                        line_list[ind] = new_line
+                return '\n'.join(line_list)
+
+            def split_lines_into_slide_using_max_row_count_per_slide(text):
+                """
+                Takes a bunch of lines and groups them into MAX_ROW_COUNT per slide
+                :param text: str - Bhajan text with line breaks to indicate lines.
+                :return: list of strings - each element represents the text for a slide.
+                """
+                slide_text = []
                 lines = text.split("\r\n")
                 this_set = []
                 for i in range(0, len(lines), MAX_ROW_COUNT):
@@ -123,10 +141,16 @@ class SaiPresentation():
                         this_set.append(lines[j])
                     slide_text.append('\n'.join(this_set))
                     this_set = []
+                return slide_text
+
+            column_adjusted_text = break_lines_if_longer_than_max_row_length(text)
+
+            #A user can define manual page breaks with the following marker.
+            #Split the text by the marker and ensure each split is in a different slide.
             PAGE_BREAK_MARKER = '\r\n[pagebreak]\r\n'
             slide_text = []
-            lines = text.split(PAGE_BREAK_MARKER)
-            map(get_text_per_slide, lines)
+            for line in column_adjusted_text.split(PAGE_BREAK_MARKER):
+                slide_text.extend(split_lines_into_slide_using_max_row_count_per_slide(line))
             return slide_text
 
 
@@ -141,15 +165,17 @@ class SaiPresentation():
                 nxt_bhajan_rn.text = next_bhajan_name
                 nxt_key_rn.text = next_key
 
+        # background images - pick a random one.
         files = os.listdir(os.path.join(app.config['DATA_DIRECTORY'], 'backgrounds'))
         background_path = None
         if len(files) != 0:
             index = random.randint(0, len(files) - 1)
             background_path = os.path.join(os.path.join(app.config['DATA_DIRECTORY'], 'backgrounds'), files[index])
 
-        text_per_slide = handle_user_defined_pagebreaks(get_true_lines(bhajan_txt))
-        for pos, text in enumerate(text_per_slide, start = 1):
-            if pos == len(text_per_slide):
+
+        text_split_per_slide = handle_user_defined_page_breaks(bhajan_txt)
+        for pos, text in enumerate(text_split_per_slide, start = 1):
+            if pos == len(text_split_per_slide):
                 final = True
             else:
                 final = False
