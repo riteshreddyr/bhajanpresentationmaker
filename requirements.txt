@@ -10,7 +10,6 @@ future==0.15.2
 itsdangerous==0.24
 lxml==2.2.8
 pefile==2016.3.28
-pypiwin32==219
 python-dateutil==2.5.3
 python-pptx==0.5.8
 pytz==2016.6.1
