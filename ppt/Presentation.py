@@ -69,7 +69,7 @@ class SaiPresentation():
         text_box = SaiPresentation.add_textBox(slide, Inches(2.5), Inches(3.2), Inches(5), Inches(1))
         para = SaiPresentation.add_paragraph_with_alignment(text_box)
         run = SaiPresentation.add_new_run_with_text(para, "Central London \n Sai Center\n")
-        SaiPresentation.set_run_font(run, Pt(44), RGBColor(0xFF, 0xFF, 0xFF), True)
+        SaiPresentation.set_run_font(run, Pt(54), RGBColor(0xFF, 0xFF, 0xFF), True)
         run = SaiPresentation.add_new_run_with_text(para, date.today().strftime("%B %d, %Y"))
         SaiPresentation.set_run_font(run, Pt(32), RGBColor(0xFF, 0xFF, 0x0F), True)
 
@@ -98,9 +98,10 @@ class SaiPresentation():
             slide = self.prs.slides.add_slide(self.prs.slide_layouts[6])
             if not background_path is None:
                 slide.shapes.add_picture(background_path, Inches(0), Inches(0), height=Inches(7.5), width=Inches(10))
-            title_rn = self.add_run_to_slide_with_font(slide, Inches(0.5), Inches(0.25), Inches(9), Inches(1), Pt(36))
+            title_rn = self.add_run_to_slide_with_font(slide, Inches(0.5), Inches(0.2), Inches(9), Inches(1.05), Pt(36),
+                                                       PP_ALIGN.LEFT)
             bhajan_rn = self.add_run_to_slide_with_font(slide, Inches(0.5), Inches(1.25), Inches(9), Inches(5.5),
-                                                        Pt(32))
+                                                        Pt(32), PP_ALIGN.LEFT)
             key_rn = self.add_run_to_slide_with_font(slide, Inches(0.5), Inches(6.5), Inches(1), Inches(0.75), Pt(16),
                                                      PP_ALIGN.LEFT)
             next_bhajan_name_rn = self.add_run_to_slide_with_font(slide, Inches(2.5), Inches(6.5), Inches(4),
@@ -110,31 +111,33 @@ class SaiPresentation():
 
             return slide, title_rn, bhajan_rn, key_rn, next_bhajan_name_rn, next_key_rn
 
+        def break_lines_if_longer_than_max_row_length(text, max_row_length=MAX_ROW_LENGTH):
+            """
+            If a line is longer than the max row length, then break that line into multiple lines.
+            :param text: Bhajan text
+            :return: str - Bhajan text with no line longer than max row length
+            """
+            line_list = text.split("\n")
+            for ind, line in enumerate(line_list):
+                if len(line) > max_row_length:
+                    """ Break into spaces and reconstruct at max_row_length intervals : handles multiple lines in one go """
+                    space_break = line.split(" ")
+                    new_line = ""  # string concat...so bad :(
+                    cur_line_length = 0
+                    for broken in space_break:
+                        if cur_line_length + len(broken) > max_row_length:
+                            new_line += "\n" + broken
+                            cur_line_length = len(broken)
+                        else:
+                            if len(new_line) != 0: # if the line is not new, add space first.
+                                new_line += " "
+                                cur_line_length += 1
+                            new_line += broken
+                            cur_line_length += len(broken)
+                    line_list[ind] = new_line
+            return '\n'.join(line_list)
 
         def handle_user_defined_page_breaks(text):
-            def break_lines_if_longer_than_max_row_length(text):
-                """
-                If a line is longer than the max row length, then break that line into multiple lines.
-                :param text: Bhajan text
-                :return: str - Bhajan text with no line longer than max row length
-                """
-                line_list = text.split("\n")
-                for ind, line in enumerate(line_list):
-                    if len(line) > MAX_ROW_LENGTH:
-                        """ Break into spaces and reconstruct at 49 intervals : handles multiple lines in one go """
-                        space_break = line.split(" ")
-                        new_line = ""  # string concat...so bad :(
-                        cur_line_length = 0
-                        for broken in space_break:
-                            if cur_line_length + len(broken) > MAX_ROW_LENGTH:
-                                new_line += "\n" + broken
-                                cur_line_length = len(broken)
-                            else:
-                                new_line += " " + broken
-                                cur_line_length += len(broken) + 1
-                        line_list[ind] = new_line
-                return '\n'.join(line_list)
-
             def split_lines_into_slide_using_max_row_count_per_slide(text):
                 """
                 Takes a bunch of lines and groups them into MAX_ROW_COUNT per slide
@@ -175,7 +178,7 @@ class SaiPresentation():
             :param background_path: - image path for the background picture
             """
             slide, title_rn, bhajan_rn, key_rn, nxt_bhajan_rn, nxt_key_rn = bhajan_slide_template(background_path)
-            title_rn.text = bhajan_name
+            title_rn.text = break_lines_if_longer_than_max_row_length(bhajan_name, 35)
             bhajan_rn.text = text.strip()
             key_rn.text = key
             if not final:
@@ -198,7 +201,7 @@ class SaiPresentation():
             else:
                 final = False
             if len(bhajan_txt) == 0:  # Empty Bhajan
-                self.add_full_image_slide(os.path.join(app.config['DATA_DIRECTORY'], 'filler.jpg'))
+                add_a_bhajan_slide(bhajan_name, text, final, key, next_bhajan_name, next_key, os.path.join(app.config['DATA_DIRECTORY'], 'filler.jpg'))
             else:
                 add_a_bhajan_slide(bhajan_name, text, final, key, next_bhajan_name, next_key, background_path)
 

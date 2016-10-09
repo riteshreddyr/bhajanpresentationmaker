@@ -34,7 +34,7 @@ def generate_presentation():
     keys = form_dict['key']
     bhajans = BhajanModel.get_bhajans_if_they_exist(bhajan_ids)
     together = zip(positions, bhajans, keys)
-    together = sorted(together, key=lambda x: x[0])
+    together = sorted(together, key=lambda x: int(x[0]))
     presentation = SaiPresentation()
     for index in range(len(together) - 1):
         current = together[index]  # [position, bhajan, key]
