@@ -70,15 +70,15 @@
 <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-ui.min.js') }}"></script>
 
 <script type="text/javascript">
-$.fn.mirror = function (selector) {
-    return this.each(function () {
-        var $this = $(this);
-        var $selector = $(selector);
-        $this.bind('keyup', function () {
-            $selector.val(($this.val()));
+    $.fn.mirror = function (selector) {
+        return this.each(function () {
+            var $this = $(this);
+            var $selector = $(selector);
+            $this.bind('keyup', function () {
+                $selector.val(($this.val()));
+            });
         });
-    });
-};
+    };
     $('#addBhajanBtn').click(function() {
         var url = "/bhajanmanager/bhajanjson/"+ $('#bhajan_to_add_id').val();
         $.get(url, function(data) {
@@ -128,14 +128,11 @@ $.fn.mirror = function (selector) {
                     return false;
                 });
             }
-                console.log(data);
         });
     });
     $( function() {
         $( "#sortable" ).sortable();
     });
-
-
 </script>
 
 {% endblock %}
