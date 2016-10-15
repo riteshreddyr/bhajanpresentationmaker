@@ -2,7 +2,7 @@ __author__ = 'RiteshReddy'
 
 import os
 
-from flask import render_template, request, redirect, send_from_directory, flash
+from flask import render_template, request, redirect, send_from_directory, flash, jsonify
 
 from flaskappbase import app
 from models.BhajanModel import BhajanModel
@@ -103,4 +103,12 @@ def _get_bhajan_from_request(request):
         return name, bhajan, meaning
     return None, None, None
 
-
+@app.route("/bhajanmanager/bhajanjson/<bhajan_id>", methods=["GET"])
+def get_bhajan_json(bhajan_id):
+    if (bhajan_id == "-1"):
+        return jsonify(BhajanModel.FILLER_SLIDE)
+    bhajan = BhajanModel.get_bhajan(int(bhajan_id))
+    if bhajan is None:
+        return jsonify(dict())
+    else:
+        return jsonify(bhajan)

@@ -1,0 +1,141 @@
+{% extends 'parent.html' %}
+
+{% block body %}
+<div class="row">
+    <div class="col-md-12">
+        <h3>Add, edit and sort Bhajans for the presentation</h3>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <h4>Instructions</h4>
+        <ul>
+            <li>Add bhajans by entering a Bhajan Id and clicking Add bhajan to list</li>
+            <li>You can add a filler slide by entering the id: -1. For other bhajans please refer to <a href="/bhajanmanager"  target="_blank">BhajanManager</a></li>
+            <li>Sort your bhajans by simply reordering them by dragging and dropping them</li>
+            <li>Delete a chosen bhajan by clicking the little x by its id</li>
+            <li>Edit the bhajan for this presentation by simply clicking on the Bhajan name and modifying the bhajan in the textarea below</li>
+            <li>Enter the key for each Bhajan</li>
+        </ul>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <form enctype="application/x-www-form-urlencoded" method="post"
+              action="/presentationmanager/experimental/generate">
+            <table id="index" class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Bhajan Name</th>
+                    <th>Key</th>
+                </tr>
+                </thead>
+                <tbody id="sortable">
+
+                </tbody>
+            </table>
+            <div class="row">
+                <div class="col-md-4 col-md-offset-8">
+                    <input type="submit" class="btn btn-primary" value="Generate Presentation"/>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <table id="controller" class="table">
+            <tbody>
+            <tr>
+                <td><label for="bhajan_to_add_id">Bhajan Id: </label> <input type="number" name="bhajan_to_add_id"
+                                                                             id="bhajan_to_add_id"/></td>
+                <td><input id="addBhajanBtn" class="btn btn-primary" type="button" value="Add bhajan to list"/></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3" id="demoDescription" style="display:none;">
+        Please click on a Bhajan above to preview it and modify if necessary.
+        You can add the following on a line of its own to specify the start of a new slide:
+        [pagebreak]
+    </div>
+    <div class="col-md-6 demoHolder">
+    </div>
+</div>
+
+<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-ui.min.js') }}"></script>
+
+<script type="text/javascript">
+$.fn.mirror = function (selector) {
+    return this.each(function () {
+        var $this = $(this);
+        var $selector = $(selector);
+        $this.bind('keyup', function () {
+            $selector.val(($this.val()));
+        });
+    });
+};
+    $('#addBhajanBtn').click(function() {
+        var url = "/bhajanmanager/bhajanjson/"+ $('#bhajan_to_add_id').val();
+        $.get(url, function(data) {
+            if (Object.keys(data).length === 0) {
+                alert("No Bhajan with that id: " + $('#bhajan_to_add_id').val());
+            } else {
+                title = data['name']
+                id = data['id']
+                bhajan = data['bhajan']
+                deleteLink = '<a class="deleteLink" href="#"><span \
+                            class="glyphicon glyphicon-remove" \
+                            aria-hidden="true"></span></a>';
+                if (id == "-1") {
+                    // filler slide
+                    html = "<tr> <td>" + deleteLink + "</td> \
+                    <td> Filler slide </td> \
+                    <input type='hidden' value='" + id + "' name='bhajan_id'/> \
+                    <input type='hidden' value='' name='bhajan' id='bhajan'/> \
+                    <td><input type='hidden' name='key' value=''/> </td> </tr>";
+                    $('#index > tbody:last-child').append(html)
+                } else {
+                    html = "<tr><td>" + id + " " + deleteLink + "</td> \
+                    <td class='properBhajan'><a href='#'>" + title + "</a></td> \
+                    <input type='hidden' value='" + id + "' name='bhajan_id'/> \
+                    <input type='hidden' value='" + bhajan + "' name='bhajan' id='bhajan'/> \
+                    <td><input type='text' name='key' /> </td> </tr>";
+                    $('#index > tbody:last-child').append(html)
+                }
+                $(".deleteLink").one("click", function() {
+                    // this is bad, this adds the listener to all previously present items as well
+                    var tr = $(this).closest('tr');
+                    tr.css("background-color","#FF3700");
+                    tr.fadeOut(400, function(){
+                        tr.remove();
+                    });
+                    return false;
+                });
+                $(".properBhajan a").click(function() {
+                    $('#demoDescription').css('display', 'block');
+                    var tr = $(this).closest('tr');
+                    var bhajan_hidden = tr.find('input[id="bhajan"]');
+                    var bhajan_id = tr.find('input[id="bhajan_id"]');
+                    var demoId = "demo"+bhajan_id.val();
+                    var newDemo = "Currently Selected Bhajan: <br/><textarea  class='form-control' rows='11' cols='50' id='"+demoId+"'>"+bhajan_hidden.val()+"</textarea>";
+                    $('.demoHolder').html(newDemo);
+                    $("#"+demoId).mirror(bhajan_hidden);
+                    return false;
+                });
+            }
+                console.log(data);
+        });
+    });
+    $( function() {
+        $( "#sortable" ).sortable();
+    });
+
+
+</script>
+
+{% endblock %}
