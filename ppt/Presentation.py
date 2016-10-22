@@ -86,7 +86,7 @@ class SaiPresentation():
         :param next_key:
         :return:
         """
-        MAX_ROW_LENGTH = 49
+        MAX_ROW_LENGTH = 45
         MAX_ROW_COUNT = 9
 
         def bhajan_slide_template(background_path=None):
