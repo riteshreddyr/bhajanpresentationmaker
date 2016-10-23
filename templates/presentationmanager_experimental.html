@@ -95,19 +95,26 @@
                     // filler slide
                     html = "<tr> <td>" + deleteLink + "</td> \
                     <td> Filler slide </td> \
-                    <input type='hidden' value='" + id + "' name='bhajan_id'/> \
+                    <input type='hidden' value='' name='bhajan_id' id='bhajan_id'/> \
                     <input type='hidden' value='' name='bhajan' id='bhajan'/> \
                     <td><input type='hidden' name='key' value=''/> </td> </tr>";
                     $('#index > tbody:last-child').append(html)
+                    tr = $('#index > tbody:last-child tr').last()
+                    tr.find('#bhajan_id').val(id)
                 } else {
-                    html = "<tr><td>" + id + " " + deleteLink + "</td> \
-                    <td class='properBhajan'><a href='#'>" + title + "</a></td> \
-                    <input type='hidden' value='" + id + "' name='bhajan_id'/> \
-                    <input type='hidden' value='" + bhajan + "' name='bhajan' id='bhajan'/> \
+                    html = "<tr><td>" + deleteLink + "</td> \
+                    <td class='properBhajan'><a id='title' href='#'></a></td> \
+                    <input type='hidden' value='' name='bhajan_id' id='bhajan_id'/> \
+                    <input type='hidden' value='' name='bhajan' id='bhajan'/> \
                     <td><input type='text' name='key' /> </td> </tr>";
                     $('#index > tbody:last-child').append(html)
+                    tr = $('#index > tbody:last-child tr').last()
+                    tr.find('td').first().prepend(id + " ")
+                    tr.find('#title').html(title)
+                    tr.find('#bhajan_id').val(id)
+                    tr.find('#bhajan').val(bhajan)
                 }
-                $(".deleteLink").one("click", function() {
+                tr.find(".deleteLink").one("click", function() {
                     // this is bad, this adds the listener to all previously present items as well
                     var tr = $(this).closest('tr');
                     tr.css("background-color","#FF3700");
