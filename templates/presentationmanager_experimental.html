@@ -10,8 +10,12 @@
     <div class="col-md-12">
         <h4>Instructions</h4>
         <ul>
-            <li>Add bhajans by entering a Bhajan Id and clicking Add bhajan to list</li>
-            <li>You can add a filler slide by entering the id: -1. For other bhajans please refer to <a href="/bhajanmanager"  target="_blank">BhajanManager</a></li>
+            <li>Add bhajans by either: </li>
+            <ul>
+                <li>Searching for the Bhajan at the end of the page and clicking on the bhajan id.</li>
+                <li>Entering a Bhajan Id directly and clicking Add bhajan to list</li>
+            </ul>
+            <li>You can add a filler slide by entering the id: -1.</li>
             <li>Sort your bhajans by simply reordering them by dragging and dropping them</li>
             <li>Delete a chosen bhajan by clicking the little x by its id</li>
             <li>Edit the bhajan for this presentation by simply clicking on the Bhajan name and modifying the bhajan in the textarea below</li>
@@ -23,7 +27,7 @@
     <div class="col-md-12">
         <form enctype="application/x-www-form-urlencoded" method="post"
               action="/presentationmanager/experimental/generate">
-            <table id="index" class="table table-hover">
+            <table id="presentationIndex" class="table table-hover">
                 <thead>
                 <tr>
                     <th>Id</th>
@@ -48,7 +52,7 @@
         <table id="controller" class="table">
             <tbody>
             <tr>
-                <td><label for="bhajan_to_add_id">Bhajan Id: </label> <input type="number" name="bhajan_to_add_id"
+                <td><label for="bhajan_to_add_id">Bhajan Id to add: </label> <input type="number" name="bhajan_to_add_id"
                                                                              id="bhajan_to_add_id"/></td>
                 <td><input id="addBhajanBtn" class="btn btn-primary" type="button" value="Add bhajan to list"/></td>
             </tr>
@@ -67,6 +71,28 @@
     </div>
 </div>
 
+<div class="row">
+    <div class="col-md-12">
+        <h3>Bhajans to choose from:</h3>
+        <table id="index" class="table table-hover">
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Bhajan Name</th>
+            </tr>
+            </thead>
+            <tbody>
+            {%- for bhajan in bhajans %}
+            <tr>
+                <td><a href="#" class="indexBhajanId"> {{ bhajan.id }} </a></td>
+                <td>{{ bhajan.name }}</td>
+            </tr>
+            {%- endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
 <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-ui.min.js') }}"></script>
 
 <script type="text/javascript">
@@ -80,10 +106,22 @@
         });
     };
     $('#addBhajanBtn').click(function() {
-        var url = "/bhajanmanager/bhajanjson/"+ $('#bhajan_to_add_id').val();
-        $.get(url, function(data) {
+        fetchBhajan($('#bhajan_to_add_id').val());
+    });
+    $( function() {
+        $( "#sortable" ).sortable();
+    });
+    $(function () {
+        $('#index').DataTable();
+    });
+    $('.indexBhajanId').click(function() {
+         fetchBhajan($(this).html());
+    });
+    function fetchBhajan(bhajanId) {
+        var url = "/bhajanmanager/bhajanjson/"+ bhajanId;
+         $.get(url, function(data) {
             if (Object.keys(data).length === 0) {
-                alert("No Bhajan with that id: " + $('#bhajan_to_add_id').val());
+                alert("No Bhajan with that id: " + bhajanId);
             } else {
                 title = data['name']
                 id = data['id']
@@ -98,8 +136,8 @@
                     <input type='hidden' value='' name='bhajan_id' id='bhajan_id'/> \
                     <input type='hidden' value='' name='bhajan' id='bhajan'/> \
                     <td><input type='hidden' name='key' value=''/> </td> </tr>";
-                    $('#index > tbody:last-child').append(html)
-                    tr = $('#index > tbody:last-child tr').last()
+                    $('#presentationIndex > tbody:last-child').append(html)
+                    tr = $('#presentationIndex > tbody:last-child tr').last()
                     tr.find('#bhajan_id').val(id)
                 } else {
                     html = "<tr><td>" + deleteLink + "</td> \
@@ -107,8 +145,8 @@
                     <input type='hidden' value='' name='bhajan_id' id='bhajan_id'/> \
                     <input type='hidden' value='' name='bhajan' id='bhajan'/> \
                     <td><input type='text' name='key' /> </td> </tr>";
-                    $('#index > tbody:last-child').append(html)
-                    tr = $('#index > tbody:last-child tr').last()
+                    $('#presentationIndex > tbody:last-child').append(html)
+                    tr = $('#presentationIndex > tbody:last-child tr').last()
                     tr.find('td').first().prepend(id + " ")
                     tr.find('#title').html(title)
                     tr.find('#bhajan_id').val(id)
@@ -136,10 +174,7 @@
                 });
             }
         });
-    });
-    $( function() {
-        $( "#sortable" ).sortable();
-    });
+    }
 </script>
 
 {% endblock %}

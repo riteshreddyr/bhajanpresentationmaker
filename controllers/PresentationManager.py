@@ -59,7 +59,9 @@ def generate_presentation():
 
 @app.route("/presentationmanager/experimental", methods=["GET"])
 def presentation_add_and_sort():
-    return render_template('presentationmanager_experimental.html')
+    bhajans = BhajanModel.get_all_bhajans()
+    bhajans = sorted(bhajans, key=lambda x: x['name'])
+    return render_template('presentationmanager_experimental.html', bhajans=bhajans)
 
 @app.route("/presentationmanager/experimental/generate", methods=["POST"])
 def generate_presentation_experimental():
