@@ -14,9 +14,9 @@ from flaskappbase import app
 
 
 class SaiPresentation():
-    def __init__(self, title_silde_image=os.path.join(app.config['DATA_DIRECTORY'], "title_slide.jpg")):
+    def __init__(self, title, subtitle, title_silde_image=os.path.join(app.config['DATA_DIRECTORY'], "title_slide.jpg")):
         self.prs = Presentation()
-        self.add_title_slide(title_silde_image)
+        self.add_title_slide(title, subtitle, title_silde_image)
 
     @staticmethod
     def set_run_font(run, size, color=RGBColor(0x00, 0x00, 0x00), bold=False, italic=None):
@@ -39,10 +39,10 @@ class SaiPresentation():
         return para
 
     @staticmethod
-    def add_textBox(slide, left, top, width, height):
+    def add_textBox(slide, left, top, width, height, auto_size = MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE, word_wrap = True):
         text_box = slide.shapes.add_textbox(left, top, width, height)
-        text_box.text_frame.auto_size = MSO_AUTO_SIZE.TEXT_TO_FIT_SHAPE
-        text_box.text_frame.word_wrap = True
+        text_box.text_frame.auto_size = auto_size
+        text_box.text_frame.word_wrap = word_wrap
         return text_box
 
     @staticmethod
@@ -61,17 +61,18 @@ class SaiPresentation():
         width = Inches(10)
         pic = slide.shapes.add_picture(img_path, left, top, height=height, width=width)
 
-    def add_title_slide(self, image_path="title_slide.jpg"):
+    def add_title_slide(self, title, subtitle, image_path="title_slide.jpg"):
         slide = self.prs.slides.add_slide(self.prs.slide_layouts[6])
         left = top = Inches(0)
         height = Inches(7.5)
         width = Inches(10)
         pic = slide.shapes.add_picture(image_path, left, top, height=height, width=width)
-        text_box = SaiPresentation.add_textBox(slide, Inches(2.5), Inches(3.2), Inches(5), Inches(1))
+        text_box = SaiPresentation.add_textBox(slide, Inches(2.5), Inches(2.2), Inches(5), Inches(4))
         para = SaiPresentation.add_paragraph_with_alignment(text_box)
-        run = SaiPresentation.add_new_run_with_text(para, "Central London \n Sai Center\n")
+        run = SaiPresentation.add_new_run_with_text(para, title)
         SaiPresentation.set_run_font(run, Pt(54), RGBColor(0xFF, 0xFF, 0xFF), True)
-        run = SaiPresentation.add_new_run_with_text(para, date.today().strftime("%B %d, %Y"))
+        run = SaiPresentation.add_new_run_with_text(para, "\n") # new line.
+        run = SaiPresentation.add_new_run_with_text(para, subtitle)
         SaiPresentation.set_run_font(run, Pt(32), RGBColor(0xFF, 0xFF, 0x0F), True)
 
 
