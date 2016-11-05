@@ -1,3 +1,5 @@
+from werkzeug.utils import redirect
+
 __author__ = 'RiteshReddy'
 import os
 from flask import Flask, render_template
@@ -21,5 +23,5 @@ if not os.path.exists(app.config['DATA_DIRECTORY']):
 
 @app.route("/")
 def hello():
-    return render_template("index.html")
+    return redirect('/presentationmanager')
 

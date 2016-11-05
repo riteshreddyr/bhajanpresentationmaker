@@ -42,21 +42,23 @@
                     <input type="text" name="slideSubtitle" id="slideSubtitle" value="{{subtitle}}"/>
                 </div>
             </div>
-            <table id="presentationIndex" class="table table-hover">
-                <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Bhajan Name</th>
-                    <th>Key</th>
-                </tr>
-                </thead>
-                <tbody id="sortable">
+            <div class="row" id="divOfBhajans" style="display:none;" >
+                <table id="presentationIndex" class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Bhajan Name</th>
+                        <th>Key</th>
+                    </tr>
+                    </thead>
+                    <tbody id="sortable">
 
-                </tbody>
-            </table>
-            <div class="row">
-                <div class="col-md-4 col-md-offset-8">
-                    <input type="submit" class="btn btn-primary" value="Generate Presentation"/>
+                    </tbody>
+                </table>
+                <div class="row">
+                    <div class="col-md-4 col-md-offset-8">
+                        <input type="submit" class="btn btn-primary" value="Generate Presentation"/>
+                    </div>
                 </div>
             </div>
         </form>
@@ -158,6 +160,8 @@
         });
     }
     function addBhajanToPage(id, title, bhajan) {
+        $('#divOfBhajans').css('display', 'block');
+
         deleteLink = '<a class="deleteLink" href="#"><span \
                             class="glyphicon glyphicon-remove" \
                             aria-hidden="true"></span></a>';
