@@ -20,8 +20,8 @@ def presentation_add_and_sort():
 @app.route("/presentationmanager/generate", methods=["POST"])
 def generate_presentation_experimental():
     form_dict = request.form.to_dict(flat=False)
-    title = form_dict['title'][0] # form_dict contains an list, get the first element
-    subtitle = form_dict['subtitle'][0] # form_dict contains an list, get the first element
+    title = form_dict['slideTitle'][0] # form_dict contains an list, get the first element
+    subtitle = form_dict['slideSubtitle'][0] # form_dict contains an list, get the first element
     presentation = SaiPresentation(title, subtitle)
     if not 'bhajan_id' in form_dict:
         # no bhajans were selected, going beyond is troublesome so just exit here.
