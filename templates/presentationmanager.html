@@ -14,19 +14,33 @@
             <ul>
                 <li>Searching for the Bhajan at the end of the page and clicking on the bhajan id.</li>
                 <li>Entering a Bhajan Id directly and clicking Add bhajan to list</li>
-                <li>You can add a filler slide by entering the id: -1.</li>
+                <li>You can add a filler slide by clicking the Add a Filler Slide.</li>
             </ul>
             <li>Sort your bhajans by simply reordering them by dragging and dropping them</li>
             <li>Delete a chosen bhajan by clicking the little x by its id</li>
             <li>Edit the bhajan for this presentation by simply clicking on the Bhajan name and modifying the bhajan in the textarea below</li>
             <li>Enter the key for each Bhajan</li>
+            <li>Click Generate Presentation</li>
         </ul>
     </div>
 </div>
 <div class="row">
     <div class="col-md-12">
         <form enctype="application/x-www-form-urlencoded" method="post"
-              action="/presentationmanager/generate">
+              action="/presentationmanager/generate" class="form-horizontal" >
+            <h3>Workspace</h3>
+            <div class="form-group">
+                <label for="title" class="col-sm-2 control-label">Presentation Title: </label>
+                <div class="col-sm-10">
+                    <input type="text" name="title" id="title" style="width:300px;" value="{{title}}"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="subtitle" class="col-sm-2 control-label">Presentation Sub-title: </label>
+                <div class="col-sm-10">
+                    <input type="text" name="subtitle" id="subtitle" value="{{subtitle}}"/>
+                </div>
+            </div>
             <table id="presentationIndex" class="table table-hover">
                 <thead>
                 <tr>
@@ -48,20 +62,18 @@
     </div>
 </div>
 <div class="row">
+    <hr/>
+    <div class="col-md-3">
+        <input id="addFillerSlide" class="btn btn-primary" type="button" value="Add Filler Slide"/>
+    </div>
     <div class="col-md-6">
-        <table id="controller" class="table">
-            <tbody>
-            <tr>
-                <td><label for="bhajan_to_add_id">Bhajan Id to add: </label> <input type="number" name="bhajan_to_add_id"
-                                                                             id="bhajan_to_add_id"/></td>
-                <td><input id="addBhajanBtn" class="btn btn-primary" type="button" value="Add bhajan to list"/></td>
-            </tr>
-            </tbody>
-        </table>
+        <input type="number" placeholder="Bhajan id to add" name="bhajan_to_add_id" id="bhajan_to_add_id"/>
+        <input id="addBhajanBtn" class="btn btn-primary" type="button" value="Add bhajan to list"/>
     </div>
 </div>
 
 <div class="row">
+    <hr/>
     <div class="col-md-3" id="demoDescription" style="display:none;">
         Please click on a Bhajan above to preview it and modify if necessary.
         You can add the following on a line of its own to specify the start of a new slide:
@@ -92,7 +104,6 @@
         </table>
     </div>
 </div>
-
 <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-ui.min.js') }}"></script>
 
 <script type="text/javascript">
@@ -107,6 +118,7 @@
     };
     $('#addBhajanBtn').click(function() {
         fetchBhajan($('#bhajan_to_add_id').val());
+        return false;
     });
     $( function() {
         $( "#sortable" ).sortable();
@@ -116,6 +128,11 @@
     });
     $('.indexBhajanId').click(function() {
          fetchBhajan($(this).html());
+         return false;
+    });
+    $('#addFillerSlide').click(function() {
+        fetchBhajan("-1");
+        return false;
     });
     function fetchBhajan(bhajanId) {
         var url = "/bhajanmanager/bhajanjson/"+ bhajanId;
