@@ -158,14 +158,15 @@
                     tr.find('#bhajan_id').val(id)
                 } else {
                     html = "<tr><td>" + deleteLink + "</td> \
-                    <td class='properBhajan'><a id='title' href='#'></a></td> \
+                    <td class='properBhajan'><input type='text' id='title' name='title' href='#'></a><a id='bhajanEdit' href='#'> \
+                                        <span class='glyphicon glyphicon-edit' aria-hidden='true'></span></a></td> \
                     <input type='hidden' value='' name='bhajan_id' id='bhajan_id'/> \
                     <input type='hidden' value='' name='bhajan' id='bhajan'/> \
                     <td><input type='text' name='key' /> </td> </tr>";
                     $('#presentationIndex > tbody:last-child').append(html)
                     tr = $('#presentationIndex > tbody:last-child tr').last()
                     tr.find('td').first().prepend(id + " ")
-                    tr.find('#title').html(title)
+                    tr.find('#title').val(title)
                     tr.find('#bhajan_id').val(id)
                     tr.find('#bhajan').val(bhajan)
                 }
@@ -178,7 +179,7 @@
                     });
                     return false;
                 });
-                $(".properBhajan a").click(function() {
+                $(".properBhajan a#bhajanEdit").click(function() {
                     $('#demoDescription').css('display', 'block');
                     var tr = $(this).closest('tr');
                     var bhajan_hidden = tr.find('input[id="bhajan"]');
