@@ -109,3 +109,7 @@ target/
 # BhajanPresenter
 data_tools/
 generated_ppts/
+
+#server stuff
+bhajan_server.wsgi
+
