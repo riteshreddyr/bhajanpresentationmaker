@@ -61,7 +61,7 @@ def delete_bhajan(bhajan_id):
 
 @app.route("/bhajanmanager/export", methods=["GET"])
 def export_bhajans():
-    return send_from_directory(app.root_path, "bhajans.json", as_attachment=True, attachment_filename="bhajans.json")
+    return send_from_directory(app.config['DATA_DIRECTORY'], "bhajans.json", as_attachment=True, attachment_filename="bhajans.json")
 
 
 @app.route("/bhajanmanager/import", methods=["GET", "POST"])
