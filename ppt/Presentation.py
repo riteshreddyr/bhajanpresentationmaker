@@ -1,5 +1,4 @@
 __author__ = 'RiteshReddy'
-from datetime import date
 import os
 import random
 
@@ -30,6 +29,7 @@ class SaiPresentation():
     def add_new_run_with_text(para, text=""):
         run = para.add_run()
         run.text = text
+        run.font.name = "Consolas"
         return run
 
     @staticmethod
@@ -89,6 +89,7 @@ class SaiPresentation():
         :return:
         """
         MAX_ROW_COUNT = 9
+        MAX_ROW_LENGTH = 35
 
         def bhajan_slide_template(background_path=None):
             """
@@ -119,8 +120,28 @@ class SaiPresentation():
                 :param text: str - Bhajan text with line breaks to indicate lines.
                 :return: list of strings - each element represents the text for a slide.
                 """
+                def get_true_lines(text):
+                    line_list = text.split("\r\n")
+                    for ind, line in enumerate(line_list):
+                        if len(line) > MAX_ROW_LENGTH:
+                            """ Break into spaces and reconstruct at 35 intervals : handles multiple lines in one go """
+                            space_break = line.split(" ")
+                            new_line = "" #string concat...so bad :(
+                            cur_line_length = 0
+                            for broken in space_break:
+                                if cur_line_length == 0:
+                                    new_line += broken
+                                    cur_line_length += len(broken)
+                                elif cur_line_length + len(broken) + 1 > MAX_ROW_LENGTH :
+                                    new_line += "\n" + broken
+                                    cur_line_length = len(broken)
+                                else:
+                                    new_line += " " + broken
+                                    cur_line_length += len(broken) + 1
+                            line_list[ind] = new_line
+                    return "\n".join(line_list)
                 slide_text = []
-                lines = text.split("\r\n")
+                lines = get_true_lines(text).split("\n")
                 this_set = []
                 for i in range(0, len(lines), MAX_ROW_COUNT):
                     for j in range(i, min(len(lines), i + MAX_ROW_COUNT)):
