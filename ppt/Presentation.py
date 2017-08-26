@@ -8,6 +8,7 @@ from pptx.enum.text import PP_PARAGRAPH_ALIGNMENT as PP_ALIGN
 from pptx.dml.color import RGBColor
 from pptx.util import Pt
 from pptx.enum.text import MSO_AUTO_SIZE
+from ttfquery import describe, glyphquery
 
 from flaskappbase import app
 
@@ -29,7 +30,6 @@ class SaiPresentation():
     def add_new_run_with_text(para, text=""):
         run = para.add_run()
         run.text = text
-        run.font.name = "Consolas"
         return run
 
     @staticmethod
@@ -89,7 +89,11 @@ class SaiPresentation():
         :return:
         """
         MAX_ROW_COUNT = 9
-        MAX_ROW_LENGTH = 35
+        MAX_ROW_LENGTH_CALIBRI = 39105 # 33 'A's of size 32 pt
+        calibri = describe.openFont(os.path.join(app.config['DATA_DIRECTORY'], "calibri.ttf"))
+
+        def get_character_width(character):
+            return glyphquery.width(calibri, glyphquery.glyphName(calibri, character))
 
         def bhajan_slide_template(background_path=None):
             """
@@ -110,7 +114,6 @@ class SaiPresentation():
                                                                   Inches(0.75), Pt(16))
             next_key_rn = self.add_run_to_slide_with_font(slide, Inches(8), Inches(6.5), Inches(1), Inches(0.75),
                                                           Pt(16), PP_ALIGN.RIGHT)
-
             return slide, title_rn, bhajan_rn, key_rn, next_bhajan_name_rn, next_key_rn
 
         def handle_user_defined_page_breaks(text):
@@ -123,21 +126,21 @@ class SaiPresentation():
                 def get_true_lines(text):
                     line_list = text.split("\r\n")
                     for ind, line in enumerate(line_list):
-                        if len(line) > MAX_ROW_LENGTH:
+                        if len(line) > MAX_ROW_LENGTH_CALIBRI:
                             """ Break into spaces and reconstruct at 35 intervals : handles multiple lines in one go """
-                            space_break = line.split(" ")
                             new_line = "" #string concat...so bad :(
                             cur_line_length = 0
-                            for broken in space_break:
+                            for char in line:
+                                width = get_character_width(char)
                                 if cur_line_length == 0:
-                                    new_line += broken
-                                    cur_line_length += len(broken)
-                                elif cur_line_length + len(broken) + 1 > MAX_ROW_LENGTH :
-                                    new_line += "\n" + broken
-                                    cur_line_length = len(broken)
+                                    new_line += char
+                                    cur_line_length += width
+                                elif cur_line_length + width + 1 > MAX_ROW_LENGTH_CALIBRI:
+                                    new_line += "\n" + char
+                                    cur_line_length = width
                                 else:
-                                    new_line += " " + broken
-                                    cur_line_length += len(broken) + 1
+                                    new_line += " " + char
+                                    cur_line_length += width + 1
                             line_list[ind] = new_line
                     return "\n".join(line_list)
                 slide_text = []
