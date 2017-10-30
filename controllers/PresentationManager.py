@@ -8,6 +8,7 @@ from flask import render_template, request, send_from_directory
 from flaskappbase import app
 from models.BhajanModel import BhajanModel
 from ppt.Presentation import SaiPresentation
+from werkzeug.utils import secure_filename
 
 @app.route("/presentationmanager", methods=["GET"])
 def presentation_add_and_sort():
@@ -16,6 +17,10 @@ def presentation_add_and_sort():
     title = "Central London Sai Centre"
     subtitle = date.today().strftime("%B %d, %Y")
     return render_template('presentationmanager.html', bhajans=bhajans, title=title, subtitle=subtitle)
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in set(['png', 'jpg', 'jpeg', 'gif'])
 
 @app.route("/presentationmanager/generate", methods=["POST"])
 def generate_presentation_experimental():
@@ -29,11 +34,15 @@ def generate_presentation_experimental():
         presentation.save_presentation(os.path.join(app.config['POWERPOINT_OUTPUT'], "bhajans.pptx"))
         return send_from_directory(app.config['POWERPOINT_OUTPUT'], "bhajans.pptx", as_attachment=True,
                                attachment_filename=filename)
-    bhajan_ids = form_dict['bhajan_id']
     title = form_dict['title']
     bhajan_text_adjusted = form_dict['bhajan']
     keys = form_dict['key']
     together = zip(title, keys, bhajan_text_adjusted)
+    backgroundImageFile = request.files['backgroundImage']
+    backgroundImage = None
+    if backgroundImageFile and allowed_file(backgroundImageFile.filename):
+        backgroundImage = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(backgroundImageFile.filename))
+        backgroundImageFile.save(backgroundImage)
 
     for index in range(len(together) - 1):
         current = together[index]  # [title, key, bhajan_text_adjusted]
@@ -43,16 +52,17 @@ def generate_presentation_experimental():
         bhajan_key = current[1]
         next_bhajan_name = next[0]
         next_bhajan_key = next[1]
-        presentation.add_bhajan_slide(bhajan_name, bhajan_txt, bhajan_key, next_bhajan_name, next_bhajan_key)
+        presentation.add_bhajan_slide(bhajan_name, bhajan_txt, bhajan_key, next_bhajan_name, next_bhajan_key, backgroundImage)
 
     last = together[-1]  # [title, key, bhajan_text_adjusted]
     bhajan_name = last[0]
     bhajan_txt = last[2] #last[0]['bhajan']
     bhajan_key = last[1]
-    presentation.add_bhajan_slide(bhajan_name, bhajan_txt, bhajan_key)
+    presentation.add_bhajan_slide(bhajan_name, bhajan_txt, bhajan_key, backgroundImage)
     presentation.add_bhajan_slide("", "", "") # filler slide at end.
     filename = 'SaiBhajans_' + datetime.today().strftime("%d_%m_%Y_%H_%M_%S") + '.pptx'
     presentation.save_presentation(os.path.join(app.config['POWERPOINT_OUTPUT'], "bhajans.pptx"))
-
+    if backgroundImage:
+        os.remove(backgroundImage)
     return send_from_directory(app.config['POWERPOINT_OUTPUT'], "bhajans.pptx", as_attachment=True,
                                attachment_filename=filename)

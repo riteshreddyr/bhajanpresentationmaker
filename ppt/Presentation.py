@@ -76,7 +76,7 @@ class SaiPresentation():
         SaiPresentation.set_run_font(run, Pt(32), RGBColor(0xFF, 0xFF, 0x0F), True)
 
 
-    def add_bhajan_slide(self, bhajan_name, bhajan_txt, key="", next_bhajan_name="", next_key=""):
+    def add_bhajan_slide(self, bhajan_name, bhajan_txt, key="", next_bhajan_name="", next_key="", backgroundImage=None):
         """
         Adds a bhajan to the powerpoint - a bhajan can take multiple slides depending on user
         handled pagebreaks and natural overflows.
@@ -86,6 +86,7 @@ class SaiPresentation():
         :param key:
         :param next_bhajan_name:
         :param next_key:
+        :param backgroundImage:
         :return:
         """
         MAX_ROW_COUNT = 9
@@ -184,12 +185,16 @@ class SaiPresentation():
                 nxt_bhajan_rn.text = next_bhajan_name
                 nxt_key_rn.text = next_key
 
-        # background images - pick a random one.
-        files = os.listdir(os.path.join(app.config['DATA_DIRECTORY'], 'backgrounds'))
+        # background images
         background_path = None
-        if len(files) != 0:
-            index = random.randint(0, len(files) - 1)
-            background_path = os.path.join(os.path.join(app.config['DATA_DIRECTORY'], 'backgrounds'), files[index])
+        if backgroundImage:
+            background_path = backgroundImage
+        else:
+            # background images - pick a random one.
+            files = os.listdir(os.path.join(app.config['DATA_DIRECTORY'], 'backgrounds'))
+            if len(files) != 0:
+                index = random.randint(0, len(files) - 1)
+                background_path = os.path.join(os.path.join(app.config['DATA_DIRECTORY'], 'backgrounds'), files[index])
 
         text_split_per_slide = handle_user_defined_page_breaks(bhajan_txt)
         for pos, text in enumerate(text_split_per_slide, start=1):
