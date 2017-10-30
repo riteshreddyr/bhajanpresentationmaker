@@ -76,7 +76,7 @@ class SaiPresentation():
         SaiPresentation.set_run_font(run, Pt(32), RGBColor(0xFF, 0xFF, 0x0F), True)
 
 
-    def add_bhajan_slide(self, bhajan_name, bhajan_txt, key="", next_bhajan_name="", next_key="", backgroundImage=None):
+    def add_bhajan_slide(self, bhajan_name, bhajan_txt, key="", next_bhajan_name="", next_key="", backgroundImage=None, hexTextColor=None):
         """
         Adds a bhajan to the powerpoint - a bhajan can take multiple slides depending on user
         handled pagebreaks and natural overflows.
@@ -87,6 +87,7 @@ class SaiPresentation():
         :param next_bhajan_name:
         :param next_key:
         :param backgroundImage:
+        :param hexTextColor:
         :return:
         """
         MAX_ROW_COUNT = 9
@@ -96,7 +97,7 @@ class SaiPresentation():
         def get_character_width(character):
             return glyphquery.width(calibri, glyphquery.glyphName(calibri, character))
 
-        def bhajan_slide_template(background_path=None):
+        def bhajan_slide_template(background_path=None, color=None):
             """
             Adds a slide to the powerpoint and returns a handle to all the various text boxes
             :param background_path: If not None, include this image as the background image.
@@ -106,15 +107,15 @@ class SaiPresentation():
             if not background_path is None:
                 slide.shapes.add_picture(background_path, Inches(0), Inches(0), height=Inches(7.5), width=Inches(10))
             title_rn = self.add_run_to_slide_with_font(slide, Inches(0.5), Inches(0.2), Inches(9), Inches(1.05), Pt(36),
-                                                       PP_ALIGN.LEFT)
+                                                       PP_ALIGN.LEFT, color=color)
             bhajan_rn = self.add_run_to_slide_with_font(slide, Inches(0.5), Inches(1.25), Inches(9), Inches(5.5),
-                                                        Pt(32), PP_ALIGN.LEFT)
+                                                        Pt(32), PP_ALIGN.LEFT, color=color)
             key_rn = self.add_run_to_slide_with_font(slide, Inches(0.5), Inches(6.5), Inches(1), Inches(0.75), Pt(16),
-                                                     PP_ALIGN.LEFT)
+                                                     PP_ALIGN.LEFT, color=color)
             next_bhajan_name_rn = self.add_run_to_slide_with_font(slide, Inches(2.5), Inches(6.5), Inches(4),
-                                                                  Inches(0.75), Pt(16))
+                                                                  Inches(0.75), Pt(16), color=color)
             next_key_rn = self.add_run_to_slide_with_font(slide, Inches(8), Inches(6.5), Inches(1), Inches(0.75),
-                                                          Pt(16), PP_ALIGN.RIGHT)
+                                                          Pt(16), PP_ALIGN.RIGHT, color=color)
             return slide, title_rn, bhajan_rn, key_rn, next_bhajan_name_rn, next_key_rn
 
         def handle_user_defined_page_breaks(text):
@@ -164,7 +165,7 @@ class SaiPresentation():
 
 
         def add_a_bhajan_slide(bhajan_name, text, final=True, key="", next_bhajan_name="", next_key="",
-                               background_path=None):
+                               background_path=None, color=None):
             """
             Adds a single bhajan slide - this is one in a series that a single bhajan can take up
             :param bhajan_name:
@@ -175,7 +176,7 @@ class SaiPresentation():
             :param next_key:
             :param background_path: - image path for the background picture
             """
-            slide, title_rn, bhajan_rn, key_rn, nxt_bhajan_rn, nxt_key_rn = bhajan_slide_template(background_path)
+            slide, title_rn, bhajan_rn, key_rn, nxt_bhajan_rn, nxt_key_rn = bhajan_slide_template(background_path, color)
             title_rn.text = bhajan_name.strip()
             bhajan_rn.text = text.strip()
             key_rn.text = key
@@ -195,6 +196,12 @@ class SaiPresentation():
             if len(files) != 0:
                 index = random.randint(0, len(files) - 1)
                 background_path = os.path.join(os.path.join(app.config['DATA_DIRECTORY'], 'backgrounds'), files[index])
+        rgbColor = RGBColor(0xff, 0xff, 0xff)
+        if hexTextColor and len(hexTextColor) == 6:
+            r = int(hexTextColor[0:2], 16)
+            g = int(hexTextColor[2:4], 16)
+            b = int(hexTextColor[4:6], 16)
+            rgbColor = RGBColor(r,g,b)
 
         text_split_per_slide = handle_user_defined_page_breaks(bhajan_txt)
         for pos, text in enumerate(text_split_per_slide, start=1):
@@ -203,9 +210,9 @@ class SaiPresentation():
             else:
                 final = False
             if len(bhajan_txt) == 0:  # Empty Bhajan
-                add_a_bhajan_slide(bhajan_name, text, final, key, next_bhajan_name, next_key, os.path.join(app.config['DATA_DIRECTORY'], 'filler.jpg'))
+                add_a_bhajan_slide(bhajan_name, text, final, key, next_bhajan_name, next_key, os.path.join(app.config['DATA_DIRECTORY'], 'filler.jpg'), rgbColor)
             else:
-                add_a_bhajan_slide(bhajan_name, text, final, key, next_bhajan_name, next_key, background_path)
+                add_a_bhajan_slide(bhajan_name, text, final, key, next_bhajan_name, next_key, background_path, rgbColor)
 
     def save_presentation(self, filename):
         self.prs.save(filename)

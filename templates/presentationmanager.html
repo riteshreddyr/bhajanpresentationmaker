@@ -61,6 +61,10 @@
                         <label for="backgroundImage">Optional: Upload a background image to use for all slides</label>
                         <input accept="image/*" type="file" name="backgroundImage" id="backgroundImage"/>
                     </div>
+                    <div class="col-md-4">
+                        <label for="textColor">Text Color: </label>
+                        <input class="jscolor" name="textColor" id="textColor" value="ffffff">
+                    </div>
                     <div class="col-md-4 col-md-offset-4">
                         <input type="submit" class="btn btn-primary" value="Generate Presentation"/>
                     </div>
@@ -145,6 +149,7 @@
 
 </script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-ui.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/jscolor.min.js') }}"></script>
 
 <script type="text/javascript">
     $.fn.mirror = function (selector) {

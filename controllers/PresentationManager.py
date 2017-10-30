@@ -43,6 +43,9 @@ def generate_presentation_experimental():
     if backgroundImageFile and allowed_file(backgroundImageFile.filename):
         backgroundImage = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(backgroundImageFile.filename))
         backgroundImageFile.save(backgroundImage)
+    hexTextColor = form_dict['textColor']
+    if hexTextColor:
+        hexTextColor = hexTextColor[0]
 
     for index in range(len(together) - 1):
         current = together[index]  # [title, key, bhajan_text_adjusted]
@@ -52,13 +55,13 @@ def generate_presentation_experimental():
         bhajan_key = current[1]
         next_bhajan_name = next[0]
         next_bhajan_key = next[1]
-        presentation.add_bhajan_slide(bhajan_name, bhajan_txt, bhajan_key, next_bhajan_name, next_bhajan_key, backgroundImage)
+        presentation.add_bhajan_slide(bhajan_name, bhajan_txt, bhajan_key, next_bhajan_name, next_bhajan_key, backgroundImage, hexTextColor)
 
     last = together[-1]  # [title, key, bhajan_text_adjusted]
     bhajan_name = last[0]
     bhajan_txt = last[2] #last[0]['bhajan']
     bhajan_key = last[1]
-    presentation.add_bhajan_slide(bhajan_name, bhajan_txt, bhajan_key, backgroundImage)
+    presentation.add_bhajan_slide(bhajan_name, bhajan_txt, bhajan_key, backgroundImage=backgroundImage, hexTextColor=hexTextColor)
     presentation.add_bhajan_slide("", "", "") # filler slide at end.
     filename = 'SaiBhajans_' + datetime.today().strftime("%d_%m_%Y_%H_%M_%S") + '.pptx'
     presentation.save_presentation(os.path.join(app.config['POWERPOINT_OUTPUT'], "bhajans.pptx"))
