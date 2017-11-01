@@ -58,14 +58,14 @@
                 </table>
                 <div class="row">
                     <div class="col-md-4">
-                        <label for="backgroundImage">Optional: Upload a background image to use for all slides</label>
+                        <label for="backgroundImage">Optional: Upload a background image to use for all slides or click here <input type="checkbox" name="noBackground" id="noBackground"/> for no background</label>
                         <input accept="image/*" type="file" name="backgroundImage" id="backgroundImage"/>
                     </div>
                     <div class="col-md-4">
                         <label for="textColor">Text Color: </label>
                         <input class="jscolor" name="textColor" id="textColor" value="ffffff">
                     </div>
-                    <div class="col-md-4 col-md-offset-4">
+                    <div class="col-md-4">
                         <input type="submit" class="btn btn-primary" value="Generate Presentation"/>
                     </div>
                 </div>
@@ -169,7 +169,18 @@
         $( "#sortable" ).sortable();
     });
     $(function () {
-        $('#index').DataTable();
+        $('#index').DataTable(({
+            "order": [[ 1, "asc" ]]
+        }));
+    });
+    $('#noBackground').click(function() {
+        if (this.checked) {
+            $('#textColor').val('000000');
+            $('#backgroundImage').val("");
+            $('#backgroundImage').prop("disabled", "disabled");
+        } else {
+            $('#backgroundImage').prop("disabled", false);
+        }
     });
     $('.indexBhajanId').click(function() {
          fetchBhajan($(this).html());
