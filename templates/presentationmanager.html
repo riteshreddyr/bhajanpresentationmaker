@@ -169,7 +169,9 @@
         $( "#sortable" ).sortable();
     });
     $(function () {
-        $('#index').DataTable();
+        $('#index').DataTable(({
+            "order": [[ 1, "asc" ]]
+        }));
     });
     $('#noBackground').click(function() {
         if (this.checked) {
