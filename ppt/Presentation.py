@@ -76,7 +76,7 @@ class SaiPresentation():
         SaiPresentation.set_run_font(run, Pt(32), RGBColor(0xFF, 0xFF, 0x0F), True)
 
 
-    def add_bhajan_slide(self, bhajan_name, bhajan_txt, key="", next_bhajan_name="", next_key="", backgroundImage=None, hexTextColor=None):
+    def add_bhajan_slide(self, bhajan_name, bhajan_txt, key="", next_bhajan_name="", next_key="", backgroundImage=None, noBackground=None, hexTextColor=None):
         """
         Adds a bhajan to the powerpoint - a bhajan can take multiple slides depending on user
         handled pagebreaks and natural overflows.
@@ -188,14 +188,15 @@ class SaiPresentation():
 
         # background images
         background_path = None
-        if backgroundImage:
-            background_path = backgroundImage
-        else:
-            # background images - pick a random one.
-            files = os.listdir(os.path.join(app.config['DATA_DIRECTORY'], 'backgrounds'))
-            if len(files) != 0:
-                index = random.randint(0, len(files) - 1)
-                background_path = os.path.join(os.path.join(app.config['DATA_DIRECTORY'], 'backgrounds'), files[index])
+        if not noBackground:
+            if backgroundImage:
+                background_path = backgroundImage
+            else:
+                # background images - pick a random one.
+                files = os.listdir(os.path.join(app.config['DATA_DIRECTORY'], 'backgrounds'))
+                if len(files) != 0:
+                    index = random.randint(0, len(files) - 1)
+                    background_path = os.path.join(os.path.join(app.config['DATA_DIRECTORY'], 'backgrounds'), files[index])
         rgbColor = RGBColor(0xff, 0xff, 0xff)
         if hexTextColor and len(hexTextColor) == 6:
             r = int(hexTextColor[0:2], 16)
