@@ -46,6 +46,16 @@ class SaiPresentation():
         return text_box
 
     @staticmethod
+    def add_title_box_runs(slide, color=RGBColor(0xff, 0xff, 0xff)):
+        text_box = SaiPresentation.add_textBox(slide, Inches(0.5), Inches(0.2), Inches(9), Inches(1.05))
+        para = SaiPresentation.add_paragraph_with_alignment(text_box, PP_ALIGN.LEFT)
+        title_run = SaiPresentation.add_new_run_with_text(para, "")
+        misc_run = SaiPresentation.add_new_run_with_text(para, "")
+        SaiPresentation.set_run_font(title_run, Pt(36), color, False, None)
+        SaiPresentation.set_run_font(misc_run, Pt(24), color, False, None)
+        return title_run, misc_run
+
+    @staticmethod
     def add_run_to_slide_with_font(slide, left, top, width, height, text_size, alignment=PP_ALIGN.CENTER,
                                    color=RGBColor(0xff, 0xff, 0xff), bold=False, italic=None):
         text_box = SaiPresentation.add_textBox(slide, left, top, width, height)
@@ -106,17 +116,16 @@ class SaiPresentation():
             slide = self.prs.slides.add_slide(self.prs.slide_layouts[6])
             if not background_path is None:
                 slide.shapes.add_picture(background_path, Inches(0), Inches(0), height=Inches(7.5), width=Inches(10))
-            title_rn = self.add_run_to_slide_with_font(slide, Inches(0.5), Inches(0.2), Inches(9), Inches(1.05), Pt(36),
-                                                       PP_ALIGN.LEFT, color=color)
+            title_rn, misc_rn = self.add_title_box_runs(slide, color=color)
             bhajan_rn = self.add_run_to_slide_with_font(slide, Inches(0.5), Inches(1.25), Inches(9), Inches(5.5),
                                                         Pt(32), PP_ALIGN.LEFT, color=color)
-            key_rn = self.add_run_to_slide_with_font(slide, Inches(0.5), Inches(6.5), Inches(1), Inches(0.75), Pt(16),
+            next_label_rn = self.add_run_to_slide_with_font(slide, Inches(0.5), Inches(6.5), Inches(1), Inches(0.75), Pt(16),
                                                      PP_ALIGN.LEFT, color=color)
             next_bhajan_name_rn = self.add_run_to_slide_with_font(slide, Inches(2.5), Inches(6.5), Inches(4),
                                                                   Inches(0.75), Pt(16), color=color)
             next_key_rn = self.add_run_to_slide_with_font(slide, Inches(8), Inches(6.5), Inches(1), Inches(0.75),
                                                           Pt(16), PP_ALIGN.RIGHT, color=color)
-            return slide, title_rn, bhajan_rn, key_rn, next_bhajan_name_rn, next_key_rn
+            return slide, title_rn, misc_rn, bhajan_rn, next_label_rn, next_bhajan_name_rn, next_key_rn
 
         def handle_user_defined_page_breaks(text):
             def split_lines_into_slide_using_max_row_count_per_slide(text):
@@ -176,13 +185,16 @@ class SaiPresentation():
             :param next_key:
             :param background_path: - image path for the background picture
             """
-            slide, title_rn, bhajan_rn, key_rn, nxt_bhajan_rn, nxt_key_rn = bhajan_slide_template(background_path, color)
+            slide, title_rn, misc_rn, bhajan_rn, next_label_rn, nxt_bhajan_rn, nxt_key_rn = bhajan_slide_template(background_path, color)
             title_rn.text = bhajan_name.strip()
+            if key:
+                misc_rn.text += " - " + key.strip()
             bhajan_rn.text = text.strip()
-            key_rn.text = key
             if not final:
                 nxt_bhajan_rn.text = "Continued"
             else:
+                if next_bhajan_name:
+                    next_label_rn.text = "Next"
                 nxt_bhajan_rn.text = next_bhajan_name
                 nxt_key_rn.text = next_key
 
