@@ -187,12 +187,10 @@ class SaiPresentation():
             """
             slide, title_rn, misc_rn, bhajan_rn, next_label_rn, nxt_bhajan_rn, nxt_key_rn = bhajan_slide_template(background_path, color)
             title_rn.text = bhajan_name.strip()
-            if key or bhajan_gender:
-                misc_rn.text += " - "
             if bhajan_gender:
-                misc_rn.text += "(" + bhajan_gender + ") "
+                misc_rn.text += " (" + bhajan_gender + ")"
             if key:
-                misc_rn.text += key.strip()
+                misc_rn.text += " - " + key.strip()
             bhajan_rn.text = text.strip()
             if not final:
                 nxt_bhajan_rn.text = "Continued"
