@@ -86,7 +86,7 @@ class SaiPresentation():
         SaiPresentation.set_run_font(run, Pt(32), RGBColor(0xFF, 0xFF, 0x0F), True)
 
 
-    def add_bhajan_slide(self, bhajan_name, bhajan_txt, key="", next_bhajan_name="", next_key="", backgroundImage=None, noBackground=None, hexTextColor=None):
+    def add_bhajan_slide(self, bhajan_name, bhajan_txt, bhajan_gender="", key="", next_bhajan_name="", next_bhajan_gender = "", next_key="", backgroundImage=None, noBackground=None, hexTextColor=None):
         """
         Adds a bhajan to the powerpoint - a bhajan can take multiple slides depending on user
         handled pagebreaks and natural overflows.
@@ -173,8 +173,8 @@ class SaiPresentation():
             return slide_text
 
 
-        def add_a_bhajan_slide(bhajan_name, text, final=True, key="", next_bhajan_name="", next_key="",
-                               background_path=None, color=None):
+        def add_a_bhajan_slide(bhajan_name, text, final=True, bhajan_gender="", key="", next_bhajan_name="",
+                               next_bhajan_gender="", next_key="", background_path=None, color=None):
             """
             Adds a single bhajan slide - this is one in a series that a single bhajan can take up
             :param bhajan_name:
@@ -187,8 +187,12 @@ class SaiPresentation():
             """
             slide, title_rn, misc_rn, bhajan_rn, next_label_rn, nxt_bhajan_rn, nxt_key_rn = bhajan_slide_template(background_path, color)
             title_rn.text = bhajan_name.strip()
+            if key or bhajan_gender:
+                misc_rn.text += " - "
+            if bhajan_gender:
+                misc_rn.text += "(" + bhajan_gender + ") "
             if key:
-                misc_rn.text += " - " + key.strip()
+                misc_rn.text += key.strip()
             bhajan_rn.text = text.strip()
             if not final:
                 nxt_bhajan_rn.text = "Continued"
@@ -196,6 +200,8 @@ class SaiPresentation():
                 if next_bhajan_name:
                     next_label_rn.text = "Next"
                 nxt_bhajan_rn.text = next_bhajan_name
+                if next_bhajan_gender:
+                    nxt_bhajan_rn.text += " (" + next_bhajan_gender + ")"
                 nxt_key_rn.text = next_key
 
         # background images
@@ -223,9 +229,9 @@ class SaiPresentation():
             else:
                 final = False
             if len(bhajan_txt) == 0:  # Empty Bhajan
-                add_a_bhajan_slide(bhajan_name, text, final, key, next_bhajan_name, next_key, os.path.join(app.config['DATA_DIRECTORY'], 'filler.jpg'), rgbColor)
+                add_a_bhajan_slide(bhajan_name, text, final, bhajan_gender, key, next_bhajan_name, next_bhajan_gender, next_key, os.path.join(app.config['DATA_DIRECTORY'], 'filler.jpg'), rgbColor)
             else:
-                add_a_bhajan_slide(bhajan_name, text, final, key, next_bhajan_name, next_key, background_path, rgbColor)
+                add_a_bhajan_slide(bhajan_name, text, final, bhajan_gender, key, next_bhajan_name, next_bhajan_gender, next_key, background_path, rgbColor)
 
     def save_presentation(self, filename):
         self.prs.save(filename)
