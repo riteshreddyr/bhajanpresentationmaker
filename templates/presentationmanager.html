@@ -49,6 +49,7 @@
                     <tr>
                         <th>Id</th>
                         <th>Bhajan Name</th>
+                        <th>Gender</th>
                         <th>Key</th>
                     </tr>
                     </thead>
@@ -224,7 +225,8 @@
             <input type='hidden' value='' name='title' id='title'/> \
             <input type='hidden' value='' name='bhajan_id' id='bhajan_id'/> \
             <input type='hidden' value='' name='bhajan' id='bhajan'/> \
-            <td><input type='hidden' name='key' value=''/> </td> </tr>";
+            <td><input type='hidden' name='gender' value=''/> </td>\
+            <td><input type='hidden' name='key' value=''/> </td></tr>";
             $('#presentationIndex > tbody:last-child').append(html)
             tr = $('#presentationIndex > tbody:last-child tr').last()
             tr.find('#bhajan_id').val(id)
@@ -234,6 +236,7 @@
                                 <span class='glyphicon glyphicon-edit' aria-hidden='true'></span></a></td> \
             <input type='hidden' value='' name='bhajan_id' id='bhajan_id'/> \
             <input type='hidden' value='' name='bhajan' id='bhajan'/> \
+            <td><select name='gender'><option></option><option>M</option><option>F</option></select></td> \
             <td><input type='text' name='key' /> </td> </tr>";
             $('#presentationIndex > tbody:last-child').append(html)
             tr = $('#presentationIndex > tbody:last-child tr').last()
