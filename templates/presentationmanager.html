@@ -21,11 +21,21 @@
             <li>Delete a chosen bhajan by clicking the <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> icon by its id</li>
             <li>Edit the bhajan for this presentation by clicking on the edit icon (<span class='glyphicon glyphicon-edit' aria-hidden='true'></span>) by the title box and modifying the bhajan in the textarea below</li>
             <li>Enter the key for each Bhajan</li>
+            <li>Optionally choose a specific background to use for slides (or no background at all) and matching font color</li>
             <li>Click Generate Presentation</li>
+            <li>Click Save State to download a file that can be later used to restore below.</li>
+            <li>
+                <form enctype="multipart/form-data" method="post" action="/presentationmanager/restoreState" class="form-inline" >
+                    Restore from a previously saved file:
+                    <input style="display:inline;" accept="text/json" type="file" name="saved_state" id="saved_state"/>
+                    <input type="submit" class="btn btn-primary" value="Restore from file"/>
+                </form>
+            </li>
             <li>Email centrallondonsaicentre@gmail.com if you would like a bhajan permanently added to the database or for any other queries or suggestions.</li>
         </ul>
     </div>
 </div>
+
 <div class="row">
     <div class="col-md-12">
         <form enctype="multipart/form-data" method="post"
@@ -33,7 +43,7 @@
             <h3>Workspace</h3>
             <div class="form-group">
                 <label for="slideTitle" class="col-sm-2 control-label">Presentation Title: </label>
-                <div class="col-sm-10">
+                <div class="col-md-10">
                     <input type="text" name="slideTitle" id="slideTitle" style="width:300px;" value="{{title}}"/>
                 </div>
             </div>
@@ -67,7 +77,9 @@
                         <input class="jscolor" name="textColor" id="textColor" value="ffffff">
                     </div>
                     <div class="col-md-4">
-                        <input type="submit" class="btn btn-primary" value="Generate Presentation"/>
+                        <input type="submit" class="btn btn-primary" value="Generate Presentation" name="generatePresentation" onclick="Submit(this);"/>
+                        <br/><br/>
+                        <input type="submit" class="btn btn-primary" value="Save State" name="saveState" onclick="Submit(this);"/>
                     </div>
                 </div>
             </div>
@@ -212,7 +224,15 @@
             }
         });
     }
-    function addBhajanToPage(id, title, bhajan) {
+    function restoreIfNeeded() {
+        var bhajans = {{ bhajans_saved | safe }}
+        for (i = 0; i < bhajans.length; i++) {
+            bhajan = bhajans[i];
+            addBhajanToPage(bhajan.id, bhajan.title, bhajan.bhajan_text_adjusted, bhajan.gender, bhajan.key);
+        }
+    }
+    restoreIfNeeded();
+    function addBhajanToPage(id, title, bhajan, gender="", key="") {
         $('#divOfBhajans').css('display', 'block');
 
         deleteLink = '<a class="deleteLink" href="#"><span \
@@ -236,8 +256,8 @@
                                 <span class='glyphicon glyphicon-edit' aria-hidden='true'></span></a></td> \
             <input type='hidden' value='' name='bhajan_id' id='bhajan_id'/> \
             <input type='hidden' value='' name='bhajan' id='bhajan'/> \
-            <td><select name='gender'><option></option><option>M</option><option>F</option></select></td> \
-            <td><input type='text' name='key' /> </td> </tr>";
+            <td><select name='gender'><option></option><option " + (gender == 'M' ? 'selected' :'') +" >M</option><option " + (gender == 'F' ? 'selected' :'') +" >F</option></select></td> \
+            <td><input type='text' name='key' value='" + key + "' /> </td> </tr>";
             $('#presentationIndex > tbody:last-child').append(html)
             tr = $('#presentationIndex > tbody:last-child tr').last()
             tr.find('td').first().prepend(id + " ")
@@ -265,6 +285,15 @@
             $("#"+demoId).mirror(bhajan_hidden);
             return false;
         });
+    }
+    function Submit(button) {
+      form = button.form;
+      if (button.name=="generatePresentation") {
+        form.action = "/presentationmanager/generate"
+      }
+      else {
+        form.action = "/presentationmanager/saveState"
+      }
     }
 </script>
 

@@ -2,8 +2,10 @@ __author__ = 'RiteshReddy'
 
 from datetime import datetime, date
 import os
+import json
 
 from flask import render_template, request, send_from_directory
+from flask import abort
 
 from flaskappbase import app
 from models.BhajanModel import BhajanModel
@@ -16,18 +18,76 @@ def presentation_add_and_sort():
     bhajans = sorted(bhajans, key=lambda x: x['name'])
     title = "Central London Sai Centre"
     subtitle = date.today().strftime("%B %d, %Y")
-    return render_template('presentationmanager.html', bhajans=bhajans, title=title, subtitle=subtitle)
+    return render_template('presentationmanager.html', bhajans=bhajans, title=title, subtitle=subtitle, bhajans_saved="[]")
+
+@app.route("/presentationmanager/restoreState", methods=["POST"])
+def restore_state():
+    bhajans = BhajanModel.get_all_bhajans()
+    bhajans = sorted(bhajans, key=lambda x: x['name'])
+    saved_state = request.files.get('saved_state')
+    if not saved_state:
+        return abort(400)
+    saved_state_filename = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(saved_state.filename))
+    saved_state.save(saved_state_filename)
+    with open(saved_state_filename) as saved_state_file:
+        json_data = json.load(saved_state_file)
+        slide_title = json_data["title"]
+        subtitle = json_data["subtitle"]
+        bhajans_saved = json_data["bhajans"]
+    bhajans_saved = json.dumps(bhajans_saved)
+    os.remove(saved_state_filename)
+    return render_template('presentationmanager.html', bhajans=bhajans, title=slide_title, subtitle=subtitle, bhajans_saved=bhajans_saved)
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in set(['png', 'jpg', 'jpeg', 'gif'])
 
-@app.route("/presentationmanager/generate", methods=["POST"])
-def generate_presentation_experimental():
+@app.route("/presentationmanager/saveState", methods=["POST"])
+def save_state():
     form_dict = request.form.to_dict(flat=False)
-    title = form_dict['slideTitle'][0] # form_dict contains an list, get the first element
+    slide_title = form_dict['slideTitle'][0] # form_dict contains an list, get the first element
     subtitle = form_dict['slideSubtitle'][0] # form_dict contains an list, get the first element
-    presentation = SaiPresentation(title, subtitle)
+    if not 'bhajan_id' in form_dict:
+        # no bhajans were selected, going beyond is troublesome so just exit here.
+        return abort(400)
+    bhajan_id = form_dict['bhajan_id']
+    title = form_dict['title']
+    bhajan_text_adjusted = form_dict['bhajan']
+    genders = form_dict['gender']
+    keys = form_dict['key']
+    together = zip(bhajan_id, title, genders, keys, bhajan_text_adjusted)
+
+    bhajans_dict_list = list()
+    for bhajan in together: # [bhajan_id, title, gender, key, bhajan_text_adjusted]
+        bhajan_dict = {
+            "id": bhajan[0],
+            "title": bhajan[1],
+            "gender": bhajan[2],
+            "key": bhajan[3],
+            "bhajan_text_adjusted": bhajan[4],
+        }
+        bhajans_dict_list.append(bhajan_dict)
+
+    final_dict = {
+        "title" : slide_title,
+        "subtitle" : subtitle,
+        "bhajans" : bhajans_dict_list
+    }
+    saved_state_json_filename = os.path.join(app.config['POWERPOINT_OUTPUT'], "savedState.json")
+    with open(saved_state_json_filename, 'w') as saved_state_json_file:
+        json.dump(final_dict, saved_state_json_file)
+
+    filename = 'SaiBhajans_State_' + datetime.today().strftime("%d_%m_%Y_%H_%M_%S") + '.json'
+    return send_from_directory(app.config['POWERPOINT_OUTPUT'], "savedState.json", as_attachment=True,
+                               attachment_filename=filename)
+
+
+@app.route("/presentationmanager/generate", methods=["POST"])
+def generate_presentation():
+    form_dict = request.form.to_dict(flat=False)
+    slide_title = form_dict['slideTitle'][0] # form_dict contains an list, get the first element
+    subtitle = form_dict['slideSubtitle'][0] # form_dict contains an list, get the first element
+    presentation = SaiPresentation(slide_title, subtitle)
     if not 'bhajan_id' in form_dict:
         # no bhajans were selected, going beyond is troublesome so just exit here.
         filename = 'SaiBhajans_' + datetime.today().strftime("%d_%m_%Y_%H_%M_%S") + '.pptx'
