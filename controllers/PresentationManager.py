@@ -18,7 +18,25 @@ def presentation_add_and_sort():
     bhajans = sorted(bhajans, key=lambda x: x['name'])
     title = "Central London Sai Centre"
     subtitle = date.today().strftime("%B %d, %Y")
-    return render_template('presentationmanager.html', bhajans=bhajans, title=title, subtitle=subtitle)
+    return render_template('presentationmanager.html', bhajans=bhajans, title=title, subtitle=subtitle, bhajans_saved="[]")
+
+@app.route("/presentationmanager/restoreState", methods=["POST"])
+def restore_state():
+    bhajans = BhajanModel.get_all_bhajans()
+    bhajans = sorted(bhajans, key=lambda x: x['name'])
+    saved_state = request.files.get('saved_state')
+    if not saved_state:
+        return abort(400)
+    saved_state_filename = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(saved_state.filename))
+    saved_state.save(saved_state_filename)
+    with open(saved_state_filename) as saved_state_file:
+        json_data = json.load(saved_state_file)
+        slide_title = json_data["title"]
+        subtitle = json_data["subtitle"]
+        bhajans_saved = json_data["bhajans"]
+    bhajans_saved = json.dumps(bhajans_saved)
+    os.remove(saved_state_filename)
+    return render_template('presentationmanager.html', bhajans=bhajans, title=slide_title, subtitle=subtitle, bhajans_saved=bhajans_saved)
 
 def allowed_file(filename):
     return '.' in filename and \
