@@ -101,7 +101,9 @@ class SaiPresentation():
         :return:
         """
         MAX_ROW_COUNT = 9
-        MAX_ROW_LENGTH_CALIBRI = 39105 # 33 'A's of size 32 pt
+        SIZE_OF_A = 1185
+        MAX_ROW_LENGTH_CALIBRI = 33 * SIZE_OF_A # 33 'A's of size 32 pt
+        MAX_TITLE_LENGTH = 24 * SIZE_OF_A # 24 As of size 36 pt
         calibri = describe.openFont(os.path.join(app.config['DATA_DIRECTORY'], "calibri.ttf"))
 
         def get_character_width(character):
@@ -172,6 +174,24 @@ class SaiPresentation():
                 slide_text.extend(split_lines_into_slide_using_max_row_count_per_slide(line))
             return slide_text
 
+        def truncate_title(bhajan_name):
+            if not bhajan_name:
+                return bhajan_name
+            prefix_sum = [0] * len(bhajan_name)
+            prefix_sum[0] = get_character_width(bhajan_name[0])
+            break_at = -1
+            for i in range(1, len(bhajan_name)):
+                prefix_sum[i] = prefix_sum[i-1] + get_character_width(bhajan_name[i])
+                if prefix_sum[i] >= MAX_TITLE_LENGTH:
+                    break_at = i
+                    break
+            if break_at == -1:
+                return bhajan_name # full name can fit.
+            for i in range(break_at, 0, -1):
+                if bhajan_name[i] == " ":
+                    return bhajan_name[:i] + "..."
+            return bhajan_name # cannot break, return full name.
+
 
         def add_a_bhajan_slide(bhajan_name, text, final=True, bhajan_gender="", key="", next_bhajan_name="",
                                next_bhajan_gender="", next_key="", background_path=None, color=None):
@@ -186,7 +206,7 @@ class SaiPresentation():
             :param background_path: - image path for the background picture
             """
             slide, title_rn, misc_rn, bhajan_rn, next_label_rn, nxt_bhajan_rn, nxt_key_rn = bhajan_slide_template(background_path, color)
-            title_rn.text = bhajan_name.strip()
+            title_rn.text = truncate_title(bhajan_name.strip())
             if bhajan_gender:
                 misc_rn.text += " (" + bhajan_gender + ")"
             if key:
