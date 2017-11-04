@@ -67,7 +67,9 @@
                         <input class="jscolor" name="textColor" id="textColor" value="ffffff">
                     </div>
                     <div class="col-md-4">
-                        <input type="submit" class="btn btn-primary" value="Generate Presentation"/>
+                        <input type="submit" class="btn btn-primary" value="Generate Presentation" name="generatePresentation" onclick="Submit(this);"/>
+                        <br/><br/>
+                        <input type="submit" class="btn btn-primary" value="Save State" name="saveState" onclick="Submit(this);"/>
                     </div>
                 </div>
             </div>
@@ -265,6 +267,15 @@
             $("#"+demoId).mirror(bhajan_hidden);
             return false;
         });
+    }
+    function Submit(button) {
+      form = button.form;
+      if (button.name=="generatePresentation") {
+        form.action = "/presentationmanager/generate"
+      }
+      else {
+        form.action = "/presentationmanager/saveState"
+      }
     }
 </script>
 
