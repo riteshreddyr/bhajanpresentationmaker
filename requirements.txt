@@ -8,7 +8,7 @@ aniso8601==1.1.0
 click==6.6
 future==0.15.2
 itsdangerous==0.24
-lxml==2.2.8
+lxml==4.6.3
 pefile==2016.3.28
 python-dateutil==2.5.3
 python-pptx==0.5.8
